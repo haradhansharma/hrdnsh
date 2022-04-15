@@ -1,0 +1,48 @@
+
+{% load static %}
+{% include "include/head.html" %} 
+{% include "include/header.html" %}
+
+
+<body> 
+    {% block content %}
+
+
+<section id="services" class="services section-show">
+    <div class="container">
+     <!-- Show message from reffered page -->
+      <div class="my-3">
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+  
+      <div class="section-title">
+        <h2>{{meta_slogan}}</h2>        
+      </div>
+  
+      <div class="row">
+  {% regroup experience_list by card.short_title as cards %}
+  {% for card in cards %}
+  <div class="icon-box mt-4"><h2>{{ card.grouper.split | first }}</h2></div>
+  {% for ex in card.list %}
+        <div class="col-lg-4 col-md-6 d-flex mt-4 ">
+          <div class="col-12 icon-box">
+                   
+            <h4>{{ex.title}}({{ex.card.short_title.split | first}})</h4>            
+            <a href="{{ex.get_absolute_url}}" class="btn btn-warning">Details</a>  
+          </div>
+        </div>
+        {% endfor %}
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endblock %}
+</body>
+{% include "include/foot.html" %}
+</html>

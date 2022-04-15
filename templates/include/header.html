@@ -1,0 +1,22 @@
+{% load static %}
+{% block header %}
+<header id="header" class="header-top">
+    <div class="container">
+      
+      <a href="/" class="mr-auto"><img src="{% static site.site_logo.url %}" alt="" class="img-fluid"></a>     
+      
+
+      <nav id="navbar" class="navbar">
+        <ul>
+          <li><a class="nav-link active" href="/">Home</a></li>
+          <li><a class="nav-link" href="/#about">About</a></li>
+          <li><a class="nav-link" href="{% url 'card:cards' %}">Resume</a></li>
+          <li><a class="nav-link" href="/#services">Services</a></li>
+          <li><a class="nav-link" href="{% url 'card:workss' %}">Portfolio</a></li>
+          <li><a class="nav-link" href="{% url 'card:contact' %}">Contact</a></li>
+        </ul>
+        <i class="bi bi-list mobile-nav-toggle"></i>
+      </nav>
+    </div>
+  </header>
+  {% endblock %}

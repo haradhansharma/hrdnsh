@@ -1,0 +1,37 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% block meta_info %}    
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}{{meta_title}}||{{meta_slogan}}{% endblock %}</title>
+    <meta name="description" content="{{meta_description}}" />
+    
+    <meta name="twitter:title" content="{{meta_title}}" />
+    <meta name="twitter:card" content="{% static meta_image.url %}" />
+    <meta property="og:description" content="{{meta_description}}" />
+    <meta property="og:image" content="{% static meta_image.url %}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="{{meta_title}}" />
+    <meta name="twitter:image" content="{% static meta_image.url %}" />
+    <meta name="twitter:description" content="{{meta_description}}" />
+    <link href="{% static favicon.url %}" rel="icon">
+    <link href="{% static favicon.url %}" rel="apple-touch-icon">    
+    {% endblock %}
+    
+    <!-- Vendor CSS Files -->
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+    <link href="{% static 'vendor/boxicons/css/boxicons.min.css' %}" rel="stylesheet">    
+    <link href="{% static 'vendor/remixicon/remixicon.css' %}" rel="stylesheet">
+    <link href="{% static 'vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
+    <!-- Template Main CSS File -->
+    <link href="{% static 'css/style.css' %}" rel="stylesheet"> 
+    <link
+    href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+    rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>    
+</head>

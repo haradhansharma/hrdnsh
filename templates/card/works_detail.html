@@ -1,0 +1,53 @@
+{% load static %}
+{% include "include/head.html" %}
+{% include "include/header.html" %}
+
+<body>
+  {% block content %}
+
+
+
+  <!-- ======= Portfolio Details ======= -->
+  <section id="portfolio-detail" class="portfolio section-show">
+    <div class="container">
+      <div class="row col-lg-12">
+        <h2 class="portfolio-title">{{works.title}}</h2>        
+      </div>
+
+        <div class="row col-lg-8 ">          
+          <img src="{% static works.picture.url %}" class="img-fluid" alt="">
+        </div>
+
+        <div class="row col-lg-4 portfolio-info">
+          <h3>Project information</h3>
+          <ul>
+            <li><strong>Category</strong>: {{works.card}}</li>
+            <li><strong>Client</strong>: {{works.status}} </li>
+            <li><strong>Project date</strong>: {{works.completed}}</li>
+            
+            <li><strong>Project date</strong>: {% for t in works.Tag.all  %}<a href="{% url 'card:tag' t.slug %}">{{t.name}} </a>{% endfor %}</li>
+            
+            
+            <li><strong>Project URL</strong>: <a href="{{works.work_url}}" target="_blank">{{works.work_url}}</a></li>
+            
+          </ul>
+          </div>
+          <div class="row col-lg-12 portfolio-info">
+
+          <p>
+            {{works.description}}
+          </p>
+          
+        </div>
+
+      
+
+    </div>
+  </section><!-- End Portfolio Details -->
+
+
+
+  {% endblock %}
+</body>
+{% include "include/foot.html" %}
+</html>

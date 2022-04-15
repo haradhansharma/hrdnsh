@@ -1,0 +1,84 @@
+{% load static %}
+{% include "include/head.html" %}
+{% include "include/header.html" %}
+<body> 
+    {% block content %}
+<!-- ======= Contact Section ======= -->
+<section id="contact" class="contact section-show">
+    <div class="container">  
+      <div class="section-title">
+        <h2>Contact</h2>
+        <p>{{meta_slogan}}</p>
+      </div>  
+      <div class="row mt-2">
+        
+        <div class="col-md-6 d-flex align-items-stretch">
+          <div class="info-box">
+            <i class="bx bx-map"></i>
+            <h3>My Address</h3>            
+            <p>{{site.current_location}}</p>
+          </div>
+        </div>  
+        <div class="col-md-6 mt-4 mt-md-0 d-flex align-items-stretch">
+          <div class="info-box">
+            <i class="bx bx-share-alt"></i>
+            <h3>Social Profiles</h3>
+            <div class="social-links">                
+                <a href="{{site.facebook_link}}" class="twitter"><i class="bi bi-twitter"></i></a>
+                <a href="{{site.twitter_link}}" class="facebook"><i class="bi bi-facebook"></i></a>
+                <a href="{{site.linkedin_link}}" class="instagram"><i class="bi bi-instagram"></i></a>
+                <a href="{{site.github_link}}" class="linkedin"><i class="bi bi-github"></i></a>
+                <a href="{{site.upwork_link}}" class="linkedin"><i class="bi bi-wallet"></i></a>                
+              </div>
+          </div>
+        </div>  
+        <div class="col-md-6 mt-4 d-flex align-items-stretch">
+          <div class="info-box">
+            <i class="bx bx-envelope"></i>
+            <h3>Email Me</h3>
+            <p>{{site.email}}</p>
+          </div>
+        </div>
+        <div class="col-md-6 mt-4 d-flex align-items-stretch">
+          <div class="info-box">
+            <i class="bx bx-phone-call"></i>
+            <h3>Call Me</h3>
+            <p>{{site.phone}}</p>
+          </div>
+        </div>
+        
+      </div>     
+        <form action="" method="post" class="php-email-form mt-4">
+            {% csrf_token %}
+        <div class="row">
+          <div class="col-md-6 form-group">            
+            {{form.name}}
+          </div>
+          <div class="col-md-6 form-group mt-3 mt-md-0">
+            {{form.email}}
+          </div>
+        </div>
+        <div class="form-group mt-3">
+          {{form.subject}}
+        </div>
+        <div class="form-group mt-3">
+          {{form.message}}
+        </div>
+        <div class="my-3">
+            {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+        <div class="text-center"><input type="submit" value="Submit" class="btn"></div>
+      </form>
+    </div>
+  </section>
+  {% endblock %}
+  
+</body>
+{% include "include/foot.html" %}
+</html>

@@ -1,0 +1,39 @@
+
+{% load static %}
+{% include "include/head.html" %}
+{% include "include/header.html" %}
+<body> 
+{% block content %}
+<section id="portfolio" class="portfolio section-show">
+  <div class="container">
+    <div class="section-title">
+      <h2>Portfolio</h2>
+      <p>{{tag}}</p>
+    </div>
+    <div class="row portfolio-container"> 
+      {% for work in works %}
+      <div class="col-lg-4 col-md-6 portfolio-item">
+        <div class="portfolio-wrap">
+          <img src="{% static work.picture.url %}" class="img-fluid" alt="">
+          <div class="portfolio-info">            
+            <h4>{{work.title}}</h4>
+            <p>Completed by: {{ work.completed }}</p>
+            <p>{{work.card}}</p>
+            <div class="portfolio-links">
+              <!-- <a href="{% static work.picture.url %}" data-gallery="portfolioGallery" class="portfolio-lightbox"
+                title="{{work.title}}"><i class="bx bx-plus"></i></a> -->
+              <a href="{{ work.get_absolute_url }}" data-gallery="portfolioDetailsGallery"
+                data-glightbox="type: external" class="portfolio-details-lightbox" title="{{work.title}}"><i
+                  class="bx bx-link"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
+</body>
+{% include "include/foot.html" %}
+</html>

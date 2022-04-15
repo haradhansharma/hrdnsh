@@ -1,0 +1,19 @@
+{% load static %}
+{% block credit %}
+<div class="credits">
+Developed by <a href="https://hrdnsh.com/">{{ site.site_meta }}</a>
+</div>
+{% endblock %}
+{% block footscript %}
+<!-- Vendor JS Files -->
+<script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+
+<script src="{% static 'vendor/isotope-layout/isotope.pkgd.min.js' %}"></script>
+
+<script src="{% static 'vendor/purecounter/purecounter.js' %}"></script>
+<script src="{% static 'vendor/swiper/swiper-bundle.min.js' %}"></script>
+<script src="{% static 'vendor/waypoints/noframework.waypoints.js' %}"></script>
+
+<!-- Template Main JS File -->
+<script src="{% static 'js/main.js' %}"></script>
+{% endblock %}

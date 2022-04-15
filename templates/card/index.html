@@ -1,0 +1,264 @@
+{% extends "card/base.html" %} 
+{% load static %}
+
+
+{% block content %}
+<!-- ======= Header ======= -->
+<header id="header">
+  <div class="container">
+  
+   
+    <a href="/" class="mr-auto"><img src="{% static site.site_logo.url %}" alt="" class="img-fluid"></a>
+
+    <h2>I'm the <span>{{site.common_slogan}}</span> from {{site.current_location}}</h2>
+    
+
+    <nav id="navbar" class="navbar">
+      <ul>
+        <li><a class="nav-link active" href="#header">Home</a></li>
+        <li><a class="nav-link" href="#about">About</a></li>
+        <li><a class="nav-link" href="{% url 'card:cards' %}">Resume</a></li>
+        <li><a class="nav-link" href="#services">Services</a></li>
+        <li><a class="nav-link" href="{% url 'card:workss' %}">Portfolio</a></li>        
+        <li><a class="nav-link" href="{% url 'card:contact' %}">Contact</a></li>
+      </ul>
+      <i class="bi bi-list mobile-nav-toggle"></i>
+    </nav><!-- .navbar -->
+    <div class="social-links">
+      <a href="{{site.twitter_link}}" class="twitter"><i class="bi bi-twitter"></i></a>
+      <a href="{{site.facebook_link}}" class="facebook"><i class="bi bi-facebook"></i></a>
+      <a href="{{site.linkedin_link}}" class="linkedin"><i class="bi bi-linkedin"></i></a>
+      <a href="{{site.github_link}}" class="github"><i class="bi bi-github"></i></a>
+      <a href="{{site.upwork_link}}" class="linkedin"><i class="bi bi-wallet"></i></a>
+    </div>
+
+   <div class="screencontrol">
+    {% include 'card/card_list.html' with card_list=card_list %}
+  </div>
+  </div>
+</header><!-- End Header -->
+<!-- ======= About Section ======= -->
+<section id="about" class="about">
+  <!-- ======= About Me ======= -->
+  <div class="about-me container">
+
+    <div class="section-title">
+      <h2>About</h2>
+      <p>Learn more about me</p>
+    </div>
+    <div class="row">
+      
+      <div class="col-lg-4" data-aos="fade-right">
+        <img src="{% static site.picture.url %}" class="img-fluid" alt="">
+      </div>
+      <div class="col-lg-8 pt-4 pt-lg-0 content" data-aos="fade-left">
+        <h3>{{site.common_slogan}}</h3>
+        
+
+        {% for c in card_list %}
+        <span><span>|</span> {{c.card_type|upper}} {{c.short_title|upper}} <span>|</span> </span>
+        {% endfor %}
+        <p class="fst-italic">
+          SKILLED IN: {% for s in skill_list %}
+          {{s.title|title}},
+          {% endfor %}
+        </p>
+        <div class="row">
+          
+          <div class="col-lg-6">
+            <ul>
+              <li><i class="bi bi-chevron-right"></i> <strong>Birthday:</strong> <span>{{site.birth_day}}</span></li>
+              <li><i class="bi bi-chevron-right"></i> <strong>Website:</strong> <span>{{site.web_address}}</span></li>
+              <li><i class="bi bi-chevron-right"></i> <strong>Phone:</strong> <span>{{site.phone}}</span></li>
+              <li><i class="bi bi-chevron-right"></i> <strong>City:</strong> <span>{{site.current_location}}</span></li>
+            </ul>
+          </div>
+          <div class="col-lg-6">
+            <ul>
+              <li><i class="bi bi-chevron-right"></i> <strong>Age:</strong> <span>{{ site.birth_day | timesince }}</span>
+              </li>
+              <li><i class="bi bi-chevron-right"></i> <strong>Degree:</strong> <span>{{site.last_degree}}</span></li>
+              <li><i class="bi bi-chevron-right"></i> <strong>Email:</strong> <span>{{site.email}}</span></li>
+              <li><i class="bi bi-chevron-right"></i> <strong>Freelance:</strong> <span>Available</span></li>
+            </ul>
+          </div>
+          
+        </div>
+        
+        <p>
+          {{site.site_description}}
+        </p>
+       
+      </div>
+    </div>
+
+  </div><!-- End About Me -->
+
+  
+
+  <!-- ======= Skills  ======= -->
+  <div class="skills container">
+
+    <div class="row section-title">
+      {% for professional in professional_card %}
+      <h2>{{professional.card_type}} Skills</h2>
+      {% endfor %}
+    </div>
+    <div class="row skills-content">
+      <div class="col-lg-6">
+        {% for ps1 in professional_skills_1 %}
+        <div class="progress">
+          <span class="skill">{{ps1.title}} <i class="val">{{ps1.proficiency}}%</i></span>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar" role="progressbar" aria-valuenow="{{ps1.proficiency}}" aria-valuemin="0"
+              aria-valuemax="100">
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="col-lg-6">
+        {% for ps2 in professional_skills_2 %}
+        <div class="progress">
+          <span class="skill">{{ps2.title}} <i class="val">{{ps2.proficiency}}%</i></span>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar" role="progressbar" aria-valuenow="{{ps2.proficiency}}" aria-valuemin="0"
+              aria-valuemax="100">
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="row section-title">
+      {% for passionate in passionate_card %}
+      <h2>{{passionate.card_type}} Skills</h2>
+      {% endfor %}
+    </div>
+    <div class="row skills-content">
+      <div class="col-lg-6">
+        {% for ps1 in passionate_skills_1 %}
+        <div class="progress">
+          <span class="skill">{{ps1.title}} <i class="val">{{ps1.proficiency}}%</i></span>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar" role="progressbar" aria-valuenow="{{ps1.proficiency}}" aria-valuemin="0"
+              aria-valuemax="100">
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="col-lg-6">
+        {% for ps2 in passionate_skills_2 %}
+        <div class="progress">
+          <span class="skill">{{ps2.title}} <i class="val">{{ps2.proficiency}}%</i></span>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar" role="progressbar" aria-valuenow="{{ps2.proficiency}}" aria-valuemin="0"
+              aria-valuemax="100">
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div><!-- End Skills -->
+
+  <!-- ======= Interests ======= -->
+  <div class="interests container">
+
+    <div class="section-title">
+      <h2>Interests</h2>
+    </div>
+    <div class="row">
+      {% for si in interest %}
+      <div class="col-lg-3 col-md-4">
+        <div class="icon-box">
+          <i class="ri-store-line" style="color: {{si.icon_color}}"></i>
+          <h3>{{si.name}}</h3>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+  </div><!-- End Interests -->
+
+  <!-- ======= Testimonials ======= -->
+  <div class="testimonials container">
+
+    <div class="section-title">
+      <h2>Testimonials</h2>
+    </div>
+
+    <div class="testimonials-slider swiper" data-aos="fade-up" data-aos-delay="100">
+      <div class="swiper-wrapper">
+        {% for t in testi %}
+        <div class="swiper-slide">
+          <div class="testimonial-item">
+            <p>
+              <i class="bx bxs-quote-alt-left quote-icon-left"></i>
+              {{t.feedback}}
+              <i class="bx bxs-quote-alt-right quote-icon-right"></i>
+            </p>
+            <img src="{% static t.picture.url %}" class="testimonial-img" alt="">
+            <h3>{{t.name}}</h3>
+            <h4>{{t.job_title}}</h4>
+          </div>
+        </div><!-- End testimonial item -->
+        {% endfor %}
+      </div>
+      <div class="swiper-pagination"></div>
+    </div>
+
+    <div class="owl-carousel testimonials-carousel">
+
+    </div>
+
+  </div><!-- End Testimonials  -->
+
+</section><!-- End About Section -->
+
+
+
+<!-- ======= Services Section ======= -->
+<section id="services" class="services">
+  <div class="container">
+   <!-- Show message from reffered page -->
+    <div class="my-3">
+      {% if messages %}
+      <ul class="messages">
+          {% for message in messages %}
+          <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+          {% endfor %}
+      </ul>
+      {% endif %}
+  </div>
+
+    <div class="section-title">
+      <h2>Services</h2>
+      <p>My Services</p>
+    </div>
+
+    <div class="row">
+{% regroup service by card.short_title as cards %}
+{% for card in cards %}
+<div class="icon-box mt-4"><h2>{{ card.grouper.split | first }}</h2></div>
+{% for ser in card.list %}
+      <div class="col-lg-4 col-md-6 d-flex align-items-stretch mt-4">
+        <div class="icon-box">
+          <div class="icon"><i class="{{ser.incon_class}}"></i></div>        
+          <h4>{{ser.title}}({{ser.card.short_title.split | first}})</h4>
+          <p>{{ser.description|safe}}</p>
+          <a href="{{ser.get_absolute_url}}" class="btn btn-warning">Make Request</a>  
+        </div>
+      </div>
+      {% endfor %}
+      {% endfor %}
+    </div>
+  </div>
+</section><!-- End Services Section -->
+
+{% endblock %}
