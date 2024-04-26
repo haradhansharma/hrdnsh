@@ -62,8 +62,8 @@ def site_profile(request):
         'number_of_industries_works' : current_site_profile.number_of_industries_works,
         'number_of_clients' : current_site_profile.number_of_clients,
         
-        'languages' : current_site_profile.languages.split(','),
-        'interest' : current_site_profile.interest.split(','),
+        'languages' : current_site_profile.languages.split(',') if current_site_profile.languages else [],
+        'interest' : current_site_profile.interest.split(',') if current_site_profile.interest else [],
         
         
         
