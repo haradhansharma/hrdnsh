@@ -18,5 +18,6 @@ theme
 staticfiles
 media/*
 !media/.gitkeep
+templates1
 
 
