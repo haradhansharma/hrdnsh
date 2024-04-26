@@ -15,7 +15,7 @@
                 <div class="col-md-10 col-xl-8 text-start d-flex  justify-content-center align-items-center mx-auto justify-content-md-start align-items-md-center justify-content-xl-center">
                     <div>
                         <h1 class="text-capitalize fw-bold mb-3">{{profile.visitor_addressing_first}}</h1> 
-                        <img class="img-fluid specialeffect magic-hover" src="{{profile.name_logo_big.url}}" width="400px" height="auto" alt="{{profile.profile_name}}">
+                        <img class="img-fluid specialeffect magic-hover" src="{{profile.name_logo_big}}" width="400px" height="auto" alt="{{profile.profile_name}}">
                         <p class="fs-4 mb-4 text-justify">{{profile.career_summary}}</p>
                         <a class="btn btn-primary fs-5 me-2 py-2 px-4 mb-2" role="button" href="{% url 'common:about' %}">RESUME</a>
                         <a class="btn btn-light fs-5 py-2 px-4" role="button" href="{% url 'contact:home' %}">LET'S TALK</a>

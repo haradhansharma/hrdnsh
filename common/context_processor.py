@@ -27,27 +27,27 @@ def site_profile(request):
         'location' : current_site_profile.location,
         'location_geo_code' : current_site_profile.location_geo_code, 
         'phone' : current_site_profile.phone,
-        'name_logo' : current_site_profile.name_logo,
-        'name_logo_big' : current_site_profile.name_logo_big,
-        'favicon' : current_site_profile.favicon,
-        'home_page_picture' : current_site_profile.home_page_picture,
-        'about_picture' : current_site_profile.about_picture,
-        'mask_icon' : current_site_profile.mask_icon,
+        'name_logo' : current_site_profile.name_logo.url if current_site_profile.name_logo else '',
+        'name_logo_big' : current_site_profile.name_logo_big.url if current_site_profile.name_logo_big else '',
+        'favicon' : current_site_profile.favicon.url if current_site_profile.favicon else '',
+        'home_page_picture' : current_site_profile.home_page_picture.url if current_site_profile.home_page_picture else '',
+        'about_picture' : current_site_profile.about_picture.url if current_site_profile.about_picture else '',
+        'mask_icon' : current_site_profile.mask_icon.url if current_site_profile.mask_icon else '',
         'career_summary' : current_site_profile.career_summary,
         'education_header' : current_site_profile.education_header,
         'education_footer' : current_site_profile.education_footer,
         'blog_page_title' : current_site_profile.blog_page_title,
         'blog_page_description' : current_site_profile.blog_page_description,
-        'blog_page_picture' : current_site_profile.blog_page_picture,
+        'blog_page_picture' : current_site_profile.blog_page_picture.url if current_site_profile.blog_page_picture else '',
         'project_page_title' : current_site_profile.project_page_title,
         'project_page_description' : current_site_profile.project_page_description,
-        'project_page_picture' : current_site_profile.project_page_picture,
+        'project_page_picture' : current_site_profile.project_page_picture.url if current_site_profile.project_page_picture else '',
         'service_page_title' : current_site_profile.service_page_title,
         'service_page_description' : current_site_profile.service_page_description,
-        'service_page_picture' : current_site_profile.service_page_picture,
+        'service_page_picture' : current_site_profile.service_page_picture.url if current_site_profile.service_page_picture else '',
         'contact_page_title' : current_site_profile.contact_page_title,
         'contact_page_description' : current_site_profile.contact_page_description,
-        'contact_page_picture' : current_site_profile.contact_page_picture,
+        'contact_page_picture' : current_site_profile.contact_page_picture.url if current_site_profile.contact_page_picture else '',
         'youtube_intro_id' : current_site_profile.youtube_intro_id,
         
         'facebook_link' : current_site_profile.facebook_link,
@@ -68,7 +68,7 @@ def site_profile(request):
         
         
         'home_url' : request.build_absolute_uri(reverse('common:home')),
-        'meta_image' : request.build_absolute_uri(current_site_profile.name_logo)
+        'meta_image' : request.build_absolute_uri(current_site_profile.name_logo.url if current_site_profile.name_logo else '')
         
         
         
