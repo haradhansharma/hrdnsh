@@ -9,19 +9,19 @@ class PublishManager(models.Manager):
         return super().get_queryset()
 
     def published(self):
-        return self.get_queryset().filter(status='public')
+        return self.get_queryset().filter(status='public').order_by('-created_at')
     
     def published_on_site(self, request):
-        return self.published().filter(site=get_current_site(request))
+        return self.published().filter(site=get_current_site(request)).order_by('-created_at')
     
     def unpublished(self):
-        return self.get_queryset().filter(status='unpublish')
+        return self.get_queryset().filter(status='unpublish').order_by('-created_at')
     
     def unpublished_on_site(self, request):
-        return self.unpublished().filter(site=get_current_site(request))
+        return self.unpublished().filter(site=get_current_site(request)).order_by('-created_at')
     
     def drafts(self):
-        return self.get_queryset().filter(status='draft')
+        return self.get_queryset().filter(status='draft').order_by('-created_at')
     
     def drafts_on_site(self, request):
-        return self.drafts().filter(site=get_current_site(request))
+        return self.drafts().filter(site=get_current_site(request)).order_by('-created_at')

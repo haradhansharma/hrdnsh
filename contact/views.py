@@ -65,8 +65,8 @@ class HomeView(FormView):
         profile = self.get_profile()
         profile['meta_title'] = profile.get('contact_page_title')
         profile['meta_description'] = profile.get('contact_page_description')[:136] + ' ...' if len(profile.get('contact_page_description')) > 140 else profile.get('contact_page_description')
-        contact_page_picture = profile.get('contact_page_picture')
-        profile['meta_image'] = self.request.build_absolute_uri(contact_page_picture.url)
+     
+        profile['meta_image'] = self.request.build_absolute_uri(profile.get('contact_page_picture'))
         context['profile'] = profile        
      
         return context

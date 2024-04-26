@@ -4,6 +4,9 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from PIL import Image
 
+
+
+
 def optimize_image_for_web(image_path, delete_original: bool, new_name=None, height=None, width=None, quality=85):
     """
     Optimize image for web use, change its height or width if supplied, overwrite the original image,

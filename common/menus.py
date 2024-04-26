@@ -1,11 +1,16 @@
 
 
 from django.urls import reverse
+from django.core.cache import cache
 
-
-def mega_menu_items(request):    
-    menu_items = []
+def mega_menu_items(request): 
     
+    menus = cache.get(f"menu_items")
+    if menus is not None:
+        return menus
+    
+       
+    menu_items = []    
     home = {
         'title' : 'Home',
         'url' : reverse('common:home'),
@@ -53,5 +58,7 @@ def mega_menu_items(request):
         'icon' : '<i class="icon-bubbles me-2"></i>'
     }
     menu_items.append(contact)
+    
+    cache.get(f"menu_items", menu_items)
     
     return menu_items

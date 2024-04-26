@@ -38,8 +38,8 @@ class ProjectHomeView(ListView):
         profile = site_profile(self.request)   
         profile['meta_title'] = profile.get('project_page_title')
         profile['meta_description'] = profile.get('project_page_description')[:136] + ' ...' if len(profile.get('project_page_description')) > 140 else profile.get('project_page_description')
-        service_page_picture = profile.get('service_page_picture')
-        profile['meta_image'] = self.request.build_absolute_uri(service_page_picture.url)
+    
+        profile['meta_image'] = self.request.build_absolute_uri(profile.get('service_page_picture'))
         
         context['profile'] = profile
         
@@ -52,8 +52,7 @@ class ProjectDetailView(DetailView):
     context_object_name = 'project'
     
     def get_queryset(self):      
-        queryset = self.model.status_objects.published_on_site(self.request).order_by('-created_at')
-        
+        queryset = self.model.status_objects.published_on_site(self.request).order_by('-created_at')        
         return queryset
     
 
@@ -76,10 +75,9 @@ class ProjectDetailView(DetailView):
         profile['meta_image'] = self.request.build_absolute_uri(obj_picture.url)        
         context['profile'] = profile
         
-        items = self.get_queryset().exclude(id=obj.id)[:6]
-        
-        slide_list = self.create_slide_groups(items)           
-        context['slide_list'] = slide_list
+        items = self.get_queryset().exclude(id=obj.id)[:6]        
+           
+        context['slide_list'] = self.create_slide_groups(items)   
             
         
         

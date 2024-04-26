@@ -3,8 +3,16 @@ from .menus import *
 from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
 from django.templatetags.static import static
+from django.core.cache import cache
 
 def site_profile(request):
+  
+    data = cache.get(f"site_profile{request.site.id}")
+    
+    if data is not None:
+        return data
+    
+    
     currect_site = get_current_site(request)
     try:
         current_site_profile = currect_site.profile
@@ -70,13 +78,8 @@ def site_profile(request):
         'home_url' : request.build_absolute_uri(reverse('common:home')),
         'meta_image' : request.build_absolute_uri(current_site_profile.name_logo.url if current_site_profile.name_logo else '')
         
-        
-        
-       
-        
-        
     }
-    
+    cache.set(f"site_profile{request.site.id}", data)
     return data
 
 def common(request):

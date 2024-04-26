@@ -2,6 +2,7 @@ from django.conf import settings
 from django.db import models
 from django.contrib.sites.models import Site
 from django.contrib.sites.managers import CurrentSiteManager
+
 class Contact(models.Model):
     site = models.ForeignKey(Site, on_delete=models.CASCADE, related_name='contacts')
     name = models.CharField(max_length=100)

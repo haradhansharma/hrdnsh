@@ -3,8 +3,9 @@ from django.shortcuts import render
 from cms.models import Like, View
 from django.views.generic import ListView, DetailView
 from django.core.paginator import Paginator
+from common.caching import get_qualifications
 from common.context_processor import site_profile
-from common.views import get_qualifications
+
 from service.models import Service
 from django.utils.html import strip_tags
 from django.views.decorators.clickjacking import xframe_options_exempt  
@@ -27,8 +28,8 @@ class ServiceHomeView(ListView):
         profile = site_profile(self.request)   
         profile['meta_title'] = profile.get('service_page_title')
         profile['meta_description'] = profile.get('service_page_description')[:136] + ' ...' if len(profile.get('service_page_description')) > 140 else profile.get('service_page_description')
-        service_page_picture = profile.get('service_page_picture')
-        profile['meta_image'] = self.request.build_absolute_uri(service_page_picture.url)
+ 
+        profile['meta_image'] = self.request.build_absolute_uri(profile.get('service_page_picture'))
         
         context['profile'] = profile
         
@@ -44,11 +45,9 @@ class ServiceDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['qualifications'] = get_qualifications(self.request)     
         
-        obj = self.get_object()        
-        
-        qualifications = get_qualifications()   
-        context['qualifications'] = qualifications                
+        obj = self.get_object()  
         
         obj.increment_view_count()          
         

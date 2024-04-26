@@ -6,6 +6,7 @@ from django.shortcuts import render
 from django.views.generic import ListView, DetailView
 from django.utils.html import strip_tags
 from cms.utils import get_paginated_comments
+from common.caching import get_categories, get_popular_tags, get_public_blogs
 from common.context_processor import site_profile
 from .models import *
 from .forms import *
@@ -60,8 +61,8 @@ class BlogListView(ListView):
         profile['meta_title'] = 'Tagged Sense and Publications' if 'tag_id' in self.kwargs else ('Categoraise Sense and Publication' if 'slug' in self.kwargs else profile['blog_page_title'])
         sumamry = profile['blog_page_description']
         profile['meta_description'] = sumamry[:136] + ' ...' if len(sumamry) > 140 else sumamry
-        meta_picture = profile['blog_page_picture']
-        profile['meta_image'] = self.request.build_absolute_uri(meta_picture)        
+  
+        profile['meta_image'] = self.request.build_absolute_uri(profile['blog_page_picture'])        
         context['profile'] = profile                     
         context['indicator'] = 'Tagged' if 'tag_id' in self.kwargs else ('Categoraise' if 'slug' in self.kwargs else 'Blogs')
         
@@ -106,32 +107,16 @@ class BlogDetailView(DetailView):
         profile['meta_description'] = sumamry[:136] + ' ...' if len(sumamry) > 140 else sumamry
         obj_picture = obj.main_image
         profile['meta_image'] = self.request.build_absolute_uri(obj_picture.url)        
-        context['profile'] = profile   
+        context['profile'] = profile  
         
-        latest_blogs = self.get_queryset()[:5]          
-        context['latest_blogs'] = latest_blogs 
+      
+        context['latest_blogs'] = get_public_blogs(self.request)[:5]   
         
-        categories = Category.on_site.all()          
-        context['categories'] = categories    
+             
+        context['categories'] = get_categories(self.request)         
         
-        '''Popular tag'''
-           
-        tags = Tag.on_site.prefetch_related('blog_related', 'view')         
-        tag_data = {}   
-        for tag in tags:
-            try:             
-                tag_view_count = tag.view.get().count                
-                blog_count = tag.blog_related.count()        
-                score = tag_view_count * 0.5 + blog_count * 0.5
-                tag_data[tag] = score
-            except Exception as e:
-                print(e)
-                pass
-
-        # Sort tags by view count and blog count
-        popular_tags = sorted(tag_data.items(), key=lambda x: x[1], reverse=True)[:10]
-        '''Popular Tag'''
-        context['popular_tags'] = popular_tags  
+        
+        context['popular_tags'] = get_popular_tags(self.request)  
 
       
         return context

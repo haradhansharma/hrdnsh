@@ -2,25 +2,12 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.views import View
 from django.templatetags.static import static
+from common.caching import get_experience, get_qualifications, get_services, get_skills
 from common.context_processor import site_profile
 from service.models import Service
 from .models import *
 
-def get_experience():
-    experiences = Experience.on_site.all()  
-    return experiences
 
-def get_qualifications():
-    qualifications = KeyQualification.on_site.all()  
-    return qualifications
-
-def get_services(request):
-    services = Service.status_objects.published_on_site(request).order_by('-created_at')
-    return services
-
-def get_skills():
-    skills = SkillsAndTools.on_site.all()  
-    return skills
     
 
 # Create your views here.
@@ -28,7 +15,7 @@ class HomeView(View):
     template_class = 'common/index.html'
     
     def get(self, request, *args, **kwargs):
-        experiences = get_experience()     
+        experiences = get_experience(request)     
         
         context = {
             'experiences' : experiences 
@@ -46,17 +33,17 @@ class AboutView(View):
     template_class = 'common/about.html'
     
     def get(self, request, *args, **kwargs):
-        experiences = get_experience() 
-        qualifications = get_qualifications()   
+        experiences = get_experience(request) 
+        qualifications = get_qualifications(request)   
         services = get_services(request) 
-        skills = get_skills()  
+        skills = get_skills(request)  
         
         profile = site_profile(request)     
         
         profile['meta_title'] = 'About Me'
         profile['meta_description'] = profile.get('career_summary')[:136] + ' ...' if len(profile.get('career_summary')) > 140 else profile.get('career_summary')
-        contact_page_picture = profile.get('about_picture')
-        profile['meta_image'] = self.request.build_absolute_uri(contact_page_picture.url)
+    
+        profile['meta_image'] = self.request.build_absolute_uri(profile.get('about_picture'))
       
         
         context = {
