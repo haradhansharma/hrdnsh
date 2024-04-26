@@ -2,7 +2,7 @@ from django.core.cache import cache
 from django.contrib.sites.models import Site
 
 def check_host(host, request, **kwargs): 
-    if host.startwith('www.'):
+    if host.startswith('www.'):
         hosts = [host, host.replace('www.', '')]
     else:
         hosts = [host, 'www.'+host]
