@@ -23,7 +23,7 @@ def build_sitemap(request):
 
 urlpatterns = [
     path('sitemap.xml', build_sitemap, name='django.contrib.sitemaps.views.sitemap'),  
-    path('admin/', admin.site.urls),  
+    path('backdoor/', admin.site.urls),  
     path('summernote/', include('django_summernote.urls')), 
     path("select2/", include("django_select2.urls")), 
     path('', include('common.urls')),   
