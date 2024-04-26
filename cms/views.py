@@ -61,7 +61,7 @@ class BlogListView(ListView):
         sumamry = profile['blog_page_description']
         profile['meta_description'] = sumamry[:136] + ' ...' if len(sumamry) > 140 else sumamry
         meta_picture = profile['blog_page_picture']
-        profile['meta_image'] = self.request.build_absolute_uri(meta_picture.url)        
+        profile['meta_image'] = self.request.build_absolute_uri(meta_picture)        
         context['profile'] = profile                     
         context['indicator'] = 'Tagged' if 'tag_id' in self.kwargs else ('Categoraise' if 'slug' in self.kwargs else 'Blogs')
         

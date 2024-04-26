@@ -30,26 +30,25 @@ if not SECRET_KEY:
     raise ValueError("No DJANGO_SECRET_KEY set for production!")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env("HRDNSH_DEBUG") == 'True'
+DEBUG = env("HRDNSH_DEBUG")
 
-if DEBUG:
-    
-    ALLOWED_HOSTS = ['*']
-    DYNAMIC_HOST_ALLOW_ALL=True
+ALLOWED_HOSTS = ['*']
+
+if DEBUG == 'True':        
+    DYNAMIC_HOST_ALLOW_ALL=True    
 else:
-    ALLOWED_HOSTS = env("HRDNSH_ALLOWED_HOST").split(',')
     DYNAMIC_HOST_ALLOW_ALL=False
     
-
-
-DYNAMIC_HOSTS_DEFAULT_HOSTS=ALLOWED_HOSTS
-DYNAMIC_HOST_ALLOW_SITES=True
+DYNAMIC_HOSTS_DEFAULT_HOSTS=env("HRDNSH_ALLOWED_HOST").split(',')
+DYNAMIC_HOST_ALLOW_SITES=False
+DYNAMIC_HOST_RESOLVER_FUNC="common.resolver.check_host"
 
 SITE_ID = 1
 # Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
+    'dynamic_host',
     'django_select2',
     'django_summernote',
     'django.contrib.auth',
@@ -58,9 +57,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
-    'django.contrib.sitemaps',
+    'django.contrib.sitemaps',    
     
-    'dynamic_host',
     'account',
     'cms',
     'common',
@@ -228,14 +226,10 @@ CACHES = {
         'OPTIONS': {
             'MAX_ENTRIES': 1000
         }
-    },
-    'select2': {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "hshrdhnsh-select2",
     }
 }
 
-SELECT2_CACHE_BACKEND = 'select2'
+SELECT2_CACHE_BACKEND = 'default'
 
 
 SUMMERNOTE_THEME = 'bs4'
