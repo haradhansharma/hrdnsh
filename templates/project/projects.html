@@ -1,0 +1,83 @@
+{% extends "includes/base.html" %}
+{% load static %}
+{% load common %}
+
+
+
+        
+{% block content %} 
+
+<!-- Start: Content section -->
+<section class="bg-secondary min-vh-100">
+    <div class="d-flex justify-content-center align-items-center">
+        <div class="container my-5 pb-5">
+            <div class="row">
+                <div class="col-12 mt-4 mt-xl-5">
+                    <div class="bg-body border rounded border-0 p-4 p-md-5 position-relative animate__animated animate__slower animate__zoomIn">
+                        {% url 'common:home' as href %}
+             
+                        {% include "includes/indicator_close_button.html" with data='projects' href=href %}
+
+                        <div class="row d-flex">
+                            <div class="col-lg-8 d-flex align-items-center">
+                                <div class="flex-fill">
+                                    <h2 class="text-uppercase fs-3 fw-bold mb-3">{{profile.project_page_title}}</h2>
+                                    <p class="fs-5 fw-normal lh-sm text-justify">{{ profile.project_page_description }}</p>
+                                    <!-- Start: Search Form -->
+                                    <form method="GET">
+                                        <div class="input-group">
+                                            <input name="q" class="form-control" type="text" placeholder="Search my latest work by title, summary or project requirements" value="{{ request.GET.q }}">
+                                            <button class="btn btn-light" type="submit">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-search">
+                                                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </form>
+                                    <!-- End: Search Form -->
+                                </div>
+                            </div>
+                            <div class="col-lg-4 d-flex">
+                                <div class="d-none d-lg-flex flex-fill">
+                                    <img class="img-fluid" src="{{ profile.blog_page_picture.url }}" width="100%" height="auto" alt="Projects" loading="lazy" style="mix-blend-mode: color-dodge;">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 bg-info mt-5 border rounded-5 border-0">
+                            <div class="row gx-3 gy-3 p-0 p-md-4 p-lg-5">
+                                {% if page_obj %}
+                                {% for project in page_obj %} 
+                                {% include "includes/project_item.html" with project=project %}
+                                {% endfor %}
+                                {% else %}
+
+                                <div class="col-md-6 d-flex flex-fill mt-0 mb-3">
+                                    {% bg_class as class_dict %}
+                                    <div class="card {{ class_dict.bgcolor }} {{ class_dict.bordercolor }} {{ class_dict.textcolor }} flex-fill w-100 rounded-5 cardeffectEx">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-center py-2">
+                                                <h5 class="fs-5 fw-bolder text-danger py-2 text-justify">No Project Found!</h5>
+                                                
+                                            </div>
+                                            <div class="lh-sm">
+                                                {% for cat in project.categories.all %}
+                                                <a class="text-uppercase fs-6 fw-light text-decoration-none badge bg-danger p-2 link-light rounded-5 me-2" href="/">Got To Home</a>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}                               
+                                
+                            </div>
+                        </div>
+                        {% include "includes/pagination.html" with page_obj=page_obj %}
+                        {% include "includes/share_code.html" %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section><!-- End: Content section -->
+
+{% endblock %}

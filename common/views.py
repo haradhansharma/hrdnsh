@@ -1,0 +1,114 @@
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render
+from django.views import View
+from django.templatetags.static import static
+from common.context_processor import site_profile
+from service.models import Service
+from .models import *
+
+def get_experience():
+    experiences = Experience.on_site.all()  
+    return experiences
+
+def get_qualifications():
+    qualifications = KeyQualification.on_site.all()  
+    return qualifications
+
+def get_services(request):
+    services = Service.status_objects.published_on_site(request).order_by('-created_at')
+    return services
+
+def get_skills():
+    skills = SkillsAndTools.on_site.all()  
+    return skills
+    
+
+# Create your views here.
+class HomeView(View):
+    template_class = 'common/index.html'
+    
+    def get(self, request, *args, **kwargs):
+        experiences = get_experience()     
+        
+        context = {
+            'experiences' : experiences 
+        }
+        
+        
+        return render(request, self.template_class, context)
+
+    def post(self, request, *args, **kwargs):
+        return HttpResponse('POST request!')
+    
+    
+    
+class AboutView(View):
+    template_class = 'common/about.html'
+    
+    def get(self, request, *args, **kwargs):
+        experiences = get_experience() 
+        qualifications = get_qualifications()   
+        services = get_services(request) 
+        skills = get_skills()  
+        
+        profile = site_profile(request)     
+        
+        profile['meta_title'] = 'About Me'
+        profile['meta_description'] = profile.get('career_summary')[:136] + ' ...' if len(profile.get('career_summary')) > 140 else profile.get('career_summary')
+        contact_page_picture = profile.get('about_picture')
+        profile['meta_image'] = self.request.build_absolute_uri(contact_page_picture.url)
+      
+        
+        context = {
+            'experiences' : experiences,
+            'qualifications' : qualifications,
+            'services' : services,
+            'skills' : skills,
+            'profile' : profile
+        }
+        
+        
+        return render(request, self.template_class, context)
+
+    
+    
+    
+def webmanifest(request):
+    profile = site_profile(request)     
+    icons = []    
+    ic128 = {
+        "src": request.build_absolute_uri(static('me128.png')),
+        "sizes": "128x128",
+        "type": "image/png",
+        "purpose":"any maskable"        
+    }
+    
+    icons.append(ic128)   
+    ic256 = {
+        "src": request.build_absolute_uri(static('me256.png')),
+        "sizes": "256x256",
+        "type": "image/png",
+        "purpose":"any maskable"        
+    }
+    
+    icons.append(ic256)   
+    ic512 = {
+        "src": request.build_absolute_uri(static('me512.png')),
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose":"any maskable"        
+    }
+    icons.append(ic512)    
+    data = {
+        'name' : profile.get('profile_name'),
+        'short_name' : profile.get('profile_name'),
+        'icons' : icons,        
+        "theme_color": "#a6034f",
+        "background_color": "#a6034f",
+        "display": "fullscreen",
+        "start_url": profile.get('home_url'),        
+    }
+    
+    return JsonResponse(data, safe=False)
+
+

@@ -1,0 +1,15 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /backdoor/
+Disallow: /*.pdf$
+
+Crawl-delay: 10
+Disallow: /robot-art/
+
+User-agent: Googlebot
+Disallow:
+
+User-agent: BadBot
+Disallow: /
+
+Sitemap: https://www.hrdnsh.com/sitemap.xml
