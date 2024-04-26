@@ -30,14 +30,16 @@ if not SECRET_KEY:
     raise ValueError("No DJANGO_SECRET_KEY set for production!")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env("HRDNSH_DEBUG")
+ENV_DEBUG = env("HRDNSH_DEBUG")
 
 ALLOWED_HOSTS = ['*']
 
-if DEBUG == 'True':        
-    DYNAMIC_HOST_ALLOW_ALL=True    
+if ENV_DEBUG.lower() == 'true':
+    DEBUG = True
+    DYNAMIC_HOST_ALLOW_ALL = True
 else:
-    DYNAMIC_HOST_ALLOW_ALL=False
+    DEBUG = False
+    DYNAMIC_HOST_ALLOW_ALL = False
     
 DYNAMIC_HOSTS_DEFAULT_HOSTS=env("HRDNSH_ALLOWED_HOST").split(',')
 DYNAMIC_HOST_ALLOW_SITES=False
