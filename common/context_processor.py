@@ -1,3 +1,4 @@
+from common.models import SiteProfile
 from .menus import *
 from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
@@ -5,7 +6,11 @@ from django.templatetags.static import static
 
 def site_profile(request):
     currect_site = get_current_site(request)
-    current_site_profile = currect_site.profile
+    try:
+        current_site_profile = currect_site.profile
+    except:
+        SiteProfile.objects.create(site=currect_site)
+        current_site_profile = currect_site.profile
 
 
     data = {
