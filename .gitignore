@@ -23,5 +23,6 @@ sincehence/settingssss
 templates/NNEEDTOREDESIGNsourcing
 templates/NNONEEDdashboard_layout
 media/*
+!media/.gitkeep
 
 
