@@ -188,8 +188,7 @@ if DEBUG:
     SILENCED_SYSTEM_CHECKS = ['django_recaptcha.recaptcha_test_key_error']
 else:
     STATIC_ROOT = os.path.join(BASE_DIR, TEMP_DIR, 'static')
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    PREPEND_WWW =True
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  
     X_FRAME_OPTIONS = 'SAMEORIGIN'
     CSRF_COOKIE_SECURE = True
     SESSION_COOKIE_SECURE = True
