@@ -75,14 +75,11 @@ class SiteProfile(SaveAndImageOptimizationMixin, models.Model):
     interest = models.TextField(help_text='Comma Separated', null=True, blank=True) 
     
     image_fields_to_optimize = [
-            'favicon', 
-            'about_picture', 
-            'home_page_picture', 
+            'favicon',           
             'contact_page_picture', 
             'service_page_picture',
             'project_page_picture',
-            'blog_page_picture',
-               
+            'blog_page_picture'       
                         
         ]
     
