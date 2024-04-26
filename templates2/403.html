@@ -1,0 +1,51 @@
+{% extends "includes/base.html" %}
+{% load static %}
+{% load common %}
+
+<!-- Start: content section -->
+<section class="bg-danger min-vh-100">
+    <div class="d-flex justify-content-center align-items-center">
+        <div class="container my-5 pb-5">
+            <div class="row">
+                <div class="col-12 d-flex justify-content-center align-items-center mt-4 mt-xl-5">
+                    <div class="bg-body border rounded border-0 p-4 p-md-5 position-relative animate__animated animate__slower animate__zoomIn">
+                        <!-- Start: PageIndicator -->
+                        <h1 class="display-6 text-uppercase fw-bolder fs-8vw position-absolute top-0 start-0" style="mix-blend-mode: soft-light;">opps, 403!</h1>
+                        <!-- End: PageIndicator -->
+                        <a class="border-light position-absolute top-0 end-0 p-2 text-decoration-none" data-bss-hover-animate="pulse" href="/">
+                            <i class="la la-close fs-1 text-light border rounded border-2 border-light"></i>
+                        </a>
+                        <div class="row d-flex">
+                            <div class="col-lg-8 d-flex align-items-center">
+                                <div class="flex-fill specialeffect magic-hover">
+                                    <h2 class="text-uppercase fs-3 fw-bold mb-3">Forbidden<span class="text-primary">&nbsp;__!</span></h2>
+                                    <p class="fs-5 fw-normal lh-sm text-justify">Oh dear! It seems you've stumbled upon a forbidden path. Regrettably, access to this area is restricted. Please return to safety or navigate through our site's main menu for more accessible content.</p>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 d-flex">
+                                <div class="d-none d-lg-flex flex-fill">
+                                    <img class="img-fluid" src="{% static 'assets/img/403.svg' %}" width="100%" height="auto" alt="403" loading="lazy"></div>
+                            </div>
+                        </div>
+                        <div class="col-12 bg-info mt-5 border rounded-5 border-0">
+                            <div class="row gx-3 gy-3 d-flex justify-content-center align-items-start p-5">
+                                <div class="col-md-8">
+                                    <div class="card bg-transparent border-0 flex-fill p-0 m-0">
+                                        <img class="img-fluid card-img-top w-100 d-block" src="{% static 'assets/img/403.svg' %}" width="100%" height="auto" alt="403" loading="lazy">
+                                        <div class="card-body text-center p-0 m-0">
+                                            <h5 class="fs-5 fw-bolder text-secondary card-title py-0 fs-1xx">403</h5>
+                                            <a class="text-uppercase fs-5 text-decoration-none badge bg-secondary p-2 link-light rounded-5 magic-hover" href="/">GO TO HOME</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section><!-- End: content section -->
+<!-- Start: Folio Footer -->
+
+{% endblock %}

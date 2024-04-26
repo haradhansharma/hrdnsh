@@ -1,0 +1,56 @@
+
+{% if page_obj.has_other_pages %}
+                                <div class="row d-flex py-3">
+                                    <div class="col d-flex justify-content-center align-items-center align-content-center">           
+                                
+                                        <ul class="list-inline">
+                                            <li class="list-inline-item">                   
+                                                <a class="text-decoration-none" href="
+                                                    {% if page_obj.has_previous  %}
+                                                        ?page={{ page_obj.previous_page_number  }}
+                                                        {% if request.GET.q %}
+                                                        &q={{ request.GET.q }}
+                                                        {% endif %}
+                                                    {% else %}
+                                                        ?page=1
+                                                        {% if request.GET.q %}
+                                                        &q={{ request.GET.q }}
+                                                        {% endif %}
+                                                    {% endif %}">                                                    
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-arrow-left-circle text-primary">
+                                                        <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"></path>
+                                                    </svg>
+                                                </a>
+                                            </li>
+                                        
+                                            {% for i in page_obj.paginator.page_range %}  
+                                            {% if i >= page_obj.number|add:"-3" and i <= page_obj.number|add:"3" %}                                            
+                                                <li class="list-inline-item mx-2">
+                                                    <a class="text-decoration-none  {% if page_obj.number == i  %} link-success {% else %} link-light {% endif %}" href="?page={{i}}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">{{ i }} </a>
+                                                </li>
+                                            {% endif %}
+                                            {% endfor %}
+
+                                            <li class="list-inline-item">  
+                                                <a class="text-decoration-none" href="
+                                                    {% if page_obj.has_next %}
+                                                        ?page={{ page_obj.next_page_number }}
+                                                        {% if request.GET.q %}
+                                                        &q={{ request.GET.q }}
+                                                        {% endif %}
+                                                    {% else %}
+                                                        ?page={{ page_obj.paginator.num_pages }}
+                                                        {% if request.GET.q %}
+                                                        &q={{ request.GET.q }}
+                                                        {% endif %}
+                                                    {% endif %}">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-arrow-right-circle text-primary">
+                                                        <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"></path>
+                                                    </svg>
+                                                </a>
+                                            </li>                                 
+                                    
+                                        </ul>
+                                    </div>
+                                </div>
+                            {% endif %}

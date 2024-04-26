@@ -90,10 +90,12 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'hrdnsh.urls'
 
+TEMP_DIR = 'templates2'
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'DIRS': [os.path.join(BASE_DIR, TEMP_DIR)],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -166,7 +168,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = f'{TEMP_DIR}/static/'
 
 FILE_UPLOAD_DIRECTORY_PERMISSIONS =0o777
 FILE_UPLOAD_PERMISSIONS = 0o644
@@ -174,8 +176,10 @@ SESSION_COOKIE_NAME = 'default'
 
 if DEBUG:
     STATICFILES_DIRS = [
-        os.path.join(BASE_DIR, 'static'),
+        os.path.join(BASE_DIR, TEMP_DIR, 'static'),
     ]
+    
+   
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
     
     RECAPTCHA_PUBLIC_KEY = str('6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI')
@@ -183,7 +187,7 @@ if DEBUG:
     RECAPTCHA_DOMAIN = 'www.recaptcha.net'
     SILENCED_SYSTEM_CHECKS = ['django_recaptcha.recaptcha_test_key_error']
 else:
-    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+    STATIC_ROOT = os.path.join(BASE_DIR, TEMP_DIR, 'static')
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     PREPEND_WWW =True
     X_FRAME_OPTIONS = 'SAMEORIGIN'
