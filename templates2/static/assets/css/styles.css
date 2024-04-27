@@ -152,6 +152,7 @@
   
   #loader.hidden {
     animation: zoomOutFadeOutLoader 1s forwards;
+    display: none;
   }
   
   @keyframes zoomOutFadeOutLoader {

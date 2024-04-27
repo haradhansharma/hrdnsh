@@ -60,7 +60,7 @@ $(document).ready(function() {
 
 
     // calling windows loader. ust be after magic mouse
-    callLoader();
+    callLoader(); 
 
     // magic mouse settings end ===========>
     
@@ -224,14 +224,14 @@ function goBack() {
 function showLoader() {
     $('#main').addClass('hidden');
     $('#loader').removeClass('hidden');
-    $('#loader .circle').removeClass('hidden');
+    // $('#loader .circle').removeClass('hidden');
 
 }
 
 function hideLoader() {
     $('#main').removeClass('hidden');
     $('#loader').addClass('hidden');
-    $('#loader .circle').addClass('hidden');
+    // $('#loader .circle').addClass('hidden');
 }
 
 function callLoader() {
