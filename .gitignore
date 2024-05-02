@@ -20,4 +20,7 @@ media/*
 !media/.gitkeep
 templates1
 
+temp_dir/*
+!media/default
+
 
