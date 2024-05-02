@@ -3,10 +3,7 @@ from .models import *
 
 admin.site.register(SiteProfile)
 admin.site.register(KeyQualification)
-
-
-
-
+admin.site.register(SiteTemplate)
 
 
 class WhatDidThereInline(admin.TabularInline): 

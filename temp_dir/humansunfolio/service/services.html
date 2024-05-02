@@ -1,0 +1,95 @@
+{% extends "includes/base.html" %}
+{% load static %}
+{% load common %}
+
+
+
+        
+{% block content %}
+
+
+<!-- Start: content section -->
+<section class="bg-secondary bg-opacity-75 min-vh-100">
+    <div class="d-flex justify-content-center align-items-center">
+        <div class="container my-5 pb-5">
+            <div class="row">
+                <div class="col-12 mt-4 mt-xl-5">
+                    <div class="bg-body border rounded border-0 p-4 p-md-5 position-relative animate__animated animate__slower animate__zoomIn">
+                        {% url 'common:home' as href %}
+             
+                        {% include "includes/indicator_close_button.html" with data='page_obj' href=href %}
+                  
+                       
+                        <div class="row">
+                            <div class="col-lg-8 d-flex flex-column flex-fill align-items-end">
+                                <div class="flex-fill">
+                                    <h2 class="text-uppercase fs-3 fw-bold mb-3">{{profile.service_page_title}}</h2>
+                                    <p class="fs-5 fw-normal text-light lh-sm text-justify">{{profile.service_page_description}}</p>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 d-flex flex-column flex-fill align-items-end">
+                                <div class="d-none d-lg-flex flex-fill">
+                                    <img class="img-fluid" src="{{ profile.service_page_picture }}" width="100%" height="auto" alt="{{profile.service_page_title}}" loading="lazy">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 bg-info mt-5 border rounded-5 border-0">
+                            <div class="row gx-3 gy-3 p-2 p-lg-3">
+                                
+                                {% if page_obj %}
+                                {% for service in page_obj %}   
+                                {% bg_class as color_class %}                             
+                                <div class="col-lg-6 d-flex flex-column flex-fill mt-0 mb-3">
+                                    <div class="card {{color_class.bgcolor}} {{color_class.bordercolor}}  flex-fill w-100 rounded-5 cardeffectEx p-3">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start py-2">
+                                               
+                                                <img class="img-fluid rounded-5"  src="{{service.thumbnail_image.url}}" width="50%" height="auto" title ="{{service.title}}" alt ="{{service.title}}">
+                                                                                 
+                                                <a href="{{ service.get_absolute_url }}">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="{{color_class.textcolor}}" viewBox="0 0 16 16" class="bi bi-box-arrow-in-up-right text-secondary bg-secondary-subtle border rounded-circle border-2 border-secondary fs-1 fw-lighter p-1 p-lg-2 magic-hover">
+                                                        <path fill-rule="evenodd" d="M6.364 13.5a.5.5 0 0 0 .5.5H13.5a1.5 1.5 0 0 0 1.5-1.5v-10A1.5 1.5 0 0 0 13.5 1h-10A1.5 1.5 0 0 0 2 2.5v6.636a.5.5 0 1 0 1 0V2.5a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 .5.5v10a.5.5 0 0 1-.5.5H6.864a.5.5 0 0 0-.5.5z"></path>
+                                                        <path fill-rule="evenodd" d="M11 5.5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793l-8.147 8.146a.5.5 0 0 0 .708.708L10 6.707V10.5a.5.5 0 0 0 1 0v-5z"></path>
+                                                    </svg>
+                                                </a>
+                                            </div>
+                                            <a class="text-decoration-none " href="{{ service.get_absolute_url }}">
+                                                <h2 class="fs-1 fw-bolder {{color_class.textcolor}} card-title py-2">{{ service.title }}</h2>
+                                                <p class="fs-5 {{color_class.textcolor}} lh-sm mb-0">{{service.summary}}</p>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>                                
+                                {% endfor %}       
+                                {% else %}  
+                                {% bg_class as color_class %}
+                                <div class="col-lg-6 d-flex flex-column flex-fill mt-0 mb-3">
+                                    <div class="card {{color_class.bgcolor}} {{color_class.bordercolor}}  flex-fill w-100 rounded-5 cardeffectEx p-3">
+                                        <div class="card-body">                                            
+                                            <h2 class="fs-1 fw-bolder {{color_class.textcolor}} card-title py-2">No page_obj Found!</h2>
+                                           
+                                        </div>
+                                        <div class="card-footer {{ color_class.linkbgcolor }} rounded-bottom-5">
+                                            <a class="d-flex justify-content-between p-2 magic-hover text-decoration-none {{ color_class.linkcolor }}" href="{% url 'common:home' %}">
+                                                <p class="text-capitalize fs-5 lh-sm mb-0">Go Home</p>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-box-arrow-in-right">
+                                                    <path fill-rule="evenodd" d="M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0v-2z"></path>
+                                                    <path fill-rule="evenodd" d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"></path>
+                                                </svg>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>                         
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% include "includes/pagination.html" with page_obj=page_obj %}
+                        {% include "includes/share_code.html" %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section><!-- End: content section -->
+
+{% endblock %}

@@ -1,0 +1,30 @@
+{% load static %}
+{% load common %}
+
+{% for comment in post_comments %}
+<div class="d-flex flex-start border-1 border-top mt-2 pt-2">
+    <img class="rounded-circle shadow-1-strong me-3" src="{% static 'assets/img/images.png' %}" alt="avatar" width="60" height="60">
+    <div id="comment{{comment.id}}">
+        {% include "includes/comment.html" %}        
+    </div>
+</div>    
+
+
+
+
+{% endfor %}
+
+
+{% if post_comments.has_next %}
+<a class="lm{{post_comments.number}}" hx-indicator="#loading" hx-get="{% url 'cms:blog_comments_block' post_id=post.id has_error="no" %}?page={{ post_comments.next_page_number }}" hx-trigger="revealed" hx-target="#all_comments" hx-swap="beforeend">
+</a>
+<div id="loading" class="htmx-indicator my-0">Loading</div>
+{% endif %}
+
+
+
+
+                                                                  
+                                                                        
+                                                          
+

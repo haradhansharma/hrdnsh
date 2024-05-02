@@ -1,0 +1,25 @@
+{% load common %}
+<div class="col-md-6 d-flex flex-fill mt-0 mb-3">
+    {% bg_class as class_dict %}
+    <div class="card {{ class_dict.bgcolor }} {{ class_dict.bordercolor }} {{ class_dict.textcolor }} flex-fill w-100 rounded-5 cardeffectEx">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start py-2">
+                <h5 class="fs-5 fw-bolder text-danger py-2">{{ project.title }}</h5>
+                <div class="d-flex">
+                    <a class="text-uppercase fs-5 text-decoration-none badge bg-danger p-2 link-light rounded-5 magic-hover" href="{{project.get_absolute_url}}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-box-arrow-in-up-right fs-1">
+                            <path fill-rule="evenodd" d="M6.364 13.5a.5.5 0 0 0 .5.5H13.5a1.5 1.5 0 0 0 1.5-1.5v-10A1.5 1.5 0 0 0 13.5 1h-10A1.5 1.5 0 0 0 2 2.5v6.636a.5.5 0 1 0 1 0V2.5a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 .5.5v10a.5.5 0 0 1-.5.5H6.864a.5.5 0 0 0-.5.5z"></path>
+                            <path fill-rule="evenodd" d="M11 5.5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793l-8.147 8.146a.5.5 0 0 0 .708.708L10 6.707V10.5a.5.5 0 0 0 1 0v-5z"></path>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            <div class="lh-sm">
+                {% for cat in project.categories.all %}
+                <a class="text-uppercase fs-6 fw-light text-decoration-none badge bg-danger p-2 link-light rounded-5 me-2" href="{{cat.get_projectcat_absolute_url}}">{{cat.title}}</a>
+                {% endfor %}
+            </div>
+        </div>
+        <img class="img-fluid card-img-bottom w-100 d-block p-4 rounded-5" src="{{project.main_image.url}}" loading="lazy" width="100%" height="auto" alt="{{project.title}}">
+    </div>
+</div>

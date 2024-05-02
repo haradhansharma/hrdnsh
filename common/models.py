@@ -1,6 +1,7 @@
 import os
 from PIL import Image
 from io import BytesIO
+from django.conf import settings
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db import models
 from django.contrib.sites.models import Site
@@ -10,6 +11,8 @@ from django.core.validators import FileExtensionValidator
 from django.utils.text import slugify
 from cms.mixins import DateTimeMixin, SaveAndImageOptimizationMixin, SiteAutorMixin
 from common.utils import optimize_image_for_web
+import zipfile
+from django.core.cache import cache
 
 
 class SiteProfile(SaveAndImageOptimizationMixin, models.Model):    
@@ -177,9 +180,7 @@ class SkillsAndTools(models.Model):
     def __str__(self):
         return self.name
     
-    def save(self, *args, **kwargs):   
-        if not self.site: 
-            self.site = get_current_site()
+    def save(self, *args, **kwargs):           
         super().save(*args, **kwargs)        
         if self.icon_image: 
             icon_image = self.icon_image
@@ -205,5 +206,41 @@ class KeyQualification(
     
     def __str__(self):
         return self.title
+    
+    
+    
+
+
+class SiteTemplate(models.Model):
+    
+    
+    site = models.OneToOneField(Site, primary_key=True, on_delete=models.CASCADE, related_name = "template")   
+    
+    template_zip = models.FileField(upload_to=settings.TEMP_DIR, blank=True) 
+    template_dir = models.TextField(null=True, blank=True)
+    
+    
+    on_site = CurrentSiteManager('site')
+    objects = models.Manager()
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+    
+        with zipfile.ZipFile(self.template_zip.path, 'r') as zip_ref:
+            extracted_path = f'{settings.TEMP_UPLOAD_DIR}'         
+            zip_ref.extractall(extracted_path)
+            zip_ref.close() 
+            self.template_zip.close()    
+            folder = (self.template_zip.name).split('/')[-1].split('.')[0]
+          
+            self.template_dir = f'{folder}'                       
+            self.template_zip.delete(save=False)                             
+            cache.delete(f'site_template{self.site.id}')
+        super().save(*args, **kwargs)
+        
+
+    def __str__(self):
+        return f"Template for Site: {self.site}"
         
 

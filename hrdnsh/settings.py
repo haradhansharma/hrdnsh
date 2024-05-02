@@ -14,6 +14,10 @@ from pathlib import Path
 import environ
 import os
 
+from hrdnsh.conf import LazyCurrentTemplate
+
+
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -76,9 +80,12 @@ AUTH_USER_MODEL = 'account.User'
 AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
 
 MIDDLEWARE = [
+    # 'common.middleware.dynamic_static_middleware',  
     'dynamic_host.middleware.AllowedHostMiddleWare',
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sites.middleware.CurrentSiteMiddleware',    
+        
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    'django.contrib.sites.middleware.CurrentSiteMiddleware',   
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -88,33 +95,8 @@ MIDDLEWARE = [
     
 ]
 
-ROOT_URLCONF = 'hrdnsh.urls'
 
-TEMP_DIR = 'templates2'
-
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, TEMP_DIR)],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'common.context_processor.common'
-            ],
-        },
-    },
-]
-
-WSGI_APPLICATION = 'hrdnsh.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
+# must be before CURRENT_TEMPLATE
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',        
@@ -128,6 +110,41 @@ DATABASES = {
         }
     }
 }
+
+ROOT_URLCONF = 'hrdnsh.urls'
+
+TEMP_DIR = 'temp_dir'
+
+TEMP_UPLOAD_DIR = os.path.join(BASE_DIR, TEMP_DIR) 
+
+CURRENT_TEMPLATE = str(LazyCurrentTemplate())
+
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [os.path.join(BASE_DIR, TEMP_DIR, CURRENT_TEMPLATE), os.path.join(BASE_DIR, 'templates')],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+                'common.context_processor.common'
+            ]
+            
+        },
+    },
+]
+
+WSGI_APPLICATION = 'hrdnsh.wsgi.application'
+
+
+# Database
+# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -164,22 +181,18 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.0/howto/static-files/
-
-STATIC_URL = f'{TEMP_DIR}/static/'
-
 FILE_UPLOAD_DIRECTORY_PERMISSIONS =0o777
 FILE_UPLOAD_PERMISSIONS = 0o644
 SESSION_COOKIE_NAME = 'default'
 
+STATIC_URL = f'{TEMP_DIR}/{CURRENT_TEMPLATE}/static/'
+
+
 if DEBUG:
     STATICFILES_DIRS = [
-        os.path.join(BASE_DIR, TEMP_DIR, 'static'),
+        os.path.join(TEMP_DIR, CURRENT_TEMPLATE, 'static')
     ]
-    
-   
+       
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
     
     RECAPTCHA_PUBLIC_KEY = str('6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI')
@@ -187,7 +200,7 @@ if DEBUG:
     RECAPTCHA_DOMAIN = 'www.recaptcha.net'
     SILENCED_SYSTEM_CHECKS = ['django_recaptcha.recaptcha_test_key_error']
 else:
-    STATIC_ROOT = os.path.join(BASE_DIR, TEMP_DIR, 'static')
+    STATIC_ROOT = os.path.join(TEMP_DIR, CURRENT_TEMPLATE, 'static')
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  
     X_FRAME_OPTIONS = 'SAMEORIGIN'
     CSRF_COOKIE_SECURE = True
