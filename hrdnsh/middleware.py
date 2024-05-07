@@ -43,7 +43,7 @@ class DynamicSettingsMiddleware:
         host = request.get_host()
         
         #redirect to https
-        if not request.is_secure() and settings.DEBUG is False:
+        if not request.is_secure():
             if host.startswith('www.'):
                 new_host = host[4:]
                 url = f"https://{new_host}{request.path}"
