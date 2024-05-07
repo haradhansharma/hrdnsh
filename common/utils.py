@@ -64,7 +64,7 @@ def optimize_image_for_web(image_path, delete_original: bool, new_name=None, hei
             new_image_name = f"{new_name}_{uuid4().hex[:8]}.{ext}"
             new_full_path = os.path.join(image_dir, new_image_name)                       
         os.rename(optimized_full_path, new_full_path)   
-        saved_webp_image = os.path.normpath(os.path.join(os.path.split(saved_webp_image_database_path)[0], new_image_name))       
+        saved_webp_image_database_path = os.path.normpath(os.path.join(os.path.split(saved_webp_image_database_path)[0], new_image_name))       
      
      
     # after optimizing thumbnail then main image we would delete original image we uploaded   
@@ -72,5 +72,5 @@ def optimize_image_for_web(image_path, delete_original: bool, new_name=None, hei
         default_storage.delete(image_path)
 
 
-    return saved_webp_image
+    return saved_webp_image_database_path
 
