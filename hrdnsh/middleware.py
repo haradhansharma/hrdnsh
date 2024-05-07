@@ -43,7 +43,7 @@ class DynamicSettingsMiddleware:
         host = request.get_host().lower()
         log.info(f'host is ________{host}')
         #redirect to https
-        if not request.is_secure():
+        if not request.is_secure() or host.startswith('www.'):
             log.info(f'request is not secure ________')
             if host.startswith('www.'):
                 log.info(f'start with www. ________')
