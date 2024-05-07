@@ -1,5 +1,5 @@
 from pathlib import Path
-from django.http import HttpResponsePermanentRedirect
+from django.http import HttpRequest, HttpResponsePermanentRedirect
 import environ
 import os
 from django.conf.urls.static import static
@@ -21,6 +21,27 @@ SITE_CACHE_OWN_LOCK = threading.Lock()
 def modify_site_cache_global():
     global SITE_CACHE_GLOBAL
     SITE_CACHE_GLOBAL = {}
+    
+
+class HttpsRedirectMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+        
+    def __call__(self, request):
+        host = request.get_host().lower()
+        # Redirect to HTTPS
+        if not request.is_secure() or host.startswith('www.'):
+            if host.startswith('www.'):
+                new_host = host[4:]
+                url = f"https://{new_host}{request.path}"
+                return HttpResponsePermanentRedirect(url)
+            else:
+                url = request.build_absolute_uri().replace('http://', 'https://')
+                return HttpResponsePermanentRedirect(url)
+        
+        response = self.get_response(request)
+        return response
+    
 
 class DynamicSettingsMiddleware:
     def __init__(self, get_response):
@@ -41,16 +62,7 @@ class DynamicSettingsMiddleware:
 
     def set_site_id(self, request):
         host = request.get_host().lower()
-        log.info(f'host is ________{host}')
-        #redirect to https
-        if not request.is_secure() or host.startswith('www.'):
-            log.info(f'request is not secure ________')
-            if host.startswith('www.'):
-                log.info(f'start with www. ________')
-                new_host = host[4:]
-                url = f"https://{new_host}{request.path}"
-                log.info(f'new url build {url} ________')
-                return HttpResponsePermanentRedirect(url)       
+        log.info(f'host is ________{host}')  
         
         log.info(f'checking host in __________________ {SITE_CACHE_GLOBAL}')
         if host in SITE_CACHE_GLOBAL and f'{host}_template' in SITE_CACHE_GLOBAL:

@@ -63,6 +63,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',        
     "whitenoise.middleware.WhiteNoiseMiddleware",
     # 'django.contrib.sites.middleware.CurrentSiteMiddleware',   
+    'hrdnsh.middleware.HttpsRedirectMiddleware',
     'hrdnsh.middleware.DynamicSettingsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
