@@ -30,14 +30,15 @@ class HttpsRedirectMiddleware:
     def __call__(self, request):
         host = request.get_host().lower()
         # Redirect to HTTPS
-        if not request.is_secure() or host.startswith('www.'):
-            if host.startswith('www.'):
-                new_host = host[4:]
-                url = f"https://{new_host}{request.path}"
-                return HttpResponsePermanentRedirect(url)
-            else:
-                url = request.build_absolute_uri().replace('http://', 'https://')
-                return HttpResponsePermanentRedirect(url)
+        if settings.PRODUCTION:
+            if not request.is_secure() or host.startswith('www.'):
+                if host.startswith('www.'):
+                    new_host = host[4:]
+                    url = f"https://{new_host}{request.path}"
+                    return HttpResponsePermanentRedirect(url)
+                else:
+                    url = request.build_absolute_uri().replace('http://', 'https://')
+                    return HttpResponsePermanentRedirect(url)
         
         response = self.get_response(request)
         return response

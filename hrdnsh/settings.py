@@ -15,6 +15,8 @@ if not SECRET_KEY:
 
 ENV_DEBUG = env("HRDNSH_DEBUG")
 
+ENV_PRODUCTION = env("HRDNSH_PRODUCTION")
+
 ALLOWED_HOSTS = ['*']
 
 if ENV_DEBUG.lower() == 'true':
@@ -23,6 +25,13 @@ if ENV_DEBUG.lower() == 'true':
 else:
     DEBUG = False
     DYNAMIC_HOST_ALLOW_ALL = False
+    
+ENV_PRODUCTION = env("HRDNSH_PRODUCTION")
+
+if ENV_PRODUCTION.lower() == 'true':
+    PRODUCTION = True
+else:
+    PRODUCTION = False
     
 DYNAMIC_HOSTS_DEFAULT_HOSTS=env("HRDNSH_ALLOWED_HOST").split(',')
 DYNAMIC_HOST_ALLOW_SITES=False
@@ -58,12 +67,12 @@ AUTH_USER_MODEL = 'account.User'
 AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
 
 MIDDLEWARE = [
- 
-    'dynamic_host.middleware.AllowedHostMiddleWare',    
+    
+    'dynamic_host.middleware.AllowedHostMiddleWare', 
+    'hrdnsh.middleware.HttpsRedirectMiddleware',   
     'django.middleware.security.SecurityMiddleware',        
     "whitenoise.middleware.WhiteNoiseMiddleware",
-    # 'django.contrib.sites.middleware.CurrentSiteMiddleware',   
-    'hrdnsh.middleware.HttpsRedirectMiddleware',
+    # 'django.contrib.sites.middleware.CurrentSiteMiddleware',     
     'hrdnsh.middleware.DynamicSettingsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
