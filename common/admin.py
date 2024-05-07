@@ -8,12 +8,18 @@ class SelectedtemplateInline(admin.StackedInline):
     model = SelectedTemplate
     extra = 1  
     
+class ExtraImagesInline(admin.TabularInline):
+    model = ExtraProfileImages
+    extra = 1
+    
 class SiteProfileAdmin(admin.ModelAdmin):
-    inlines = [SelectedtemplateInline]
+    inlines = [SelectedtemplateInline, ExtraImagesInline]
 admin.site.register(SiteProfile, SiteProfileAdmin)
 
 
 admin.site.register(KeyQualification)
+
+
 
 
 class TemplateAdmin(SummernoteModelAdmin):
@@ -37,6 +43,8 @@ class WhatDidThereInline(admin.TabularInline):
 class SkillsAndToolsInline(admin.TabularInline): 
     model = SkillsAndTools
     extra = 1  
+    
+
     
 
 

@@ -3,10 +3,22 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    
-
     {% include "includes/meta.html" %}
-    {% include "includes/toplinks.html" %}        
+    {% include "includes/toplinks.html" %}  
+    <style>
+        .circle:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url({{profile.extra_images.icon256}});
+            background-size: cover;
+            background-position: center;
+          }
+    </style>
+
 </head>
 
 <body >

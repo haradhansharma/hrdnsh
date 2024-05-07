@@ -116,7 +116,7 @@
     overflow: hidden;
   }
   
-  .circle:before {
+  /* .circle:before {
     content: "";
     position: absolute;
     top: 0;
@@ -126,7 +126,7 @@
     background-image: url('../../me256.png');
     background-size: cover;
     background-position: center;
-  }
+  } */
   
   @keyframes spin {
     0% {
@@ -246,8 +246,7 @@
   }
   
   .my-background-pic {
-    height: 100%!important;
-    background-image: url(../../assets/img/kabutor_wh.svg);
+    height: 100%!important;    
     background-position: 100% bottom;
     background-size: initial;
     background-repeat: no-repeat;

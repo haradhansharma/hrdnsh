@@ -56,7 +56,7 @@
                 </div>
                 <div class="col-md-6">
                     <div class="text-start p-4 p-lg-5 position-relative">
-                        <img width="315" height="auto" alt="Haradhan Sharma" src="{% static 'assets/img/portrait.png' %}">
+                        <img width="315" height="auto" alt="{{ profile.profile_name }}" src="{{profile.extra_images.portrait}}">
                         <h1 class="text-uppercase fw-bold text-secondary my-3">{{profile.profile_name}}</h1>
                         <p class="text-capitalize fs-5 text-success">{{profile.profile_title}}</p>
                         <!-- Start: Let's Talk Button -->

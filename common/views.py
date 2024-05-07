@@ -65,7 +65,7 @@ def webmanifest(request):
     profile = site_profile(request)     
     icons = []    
     ic128 = {
-        "src": request.build_absolute_uri(static('me128.png')),
+        "src": request.build_absolute_uri(profile.get('extra_images').get('icon128')),
         "sizes": "128x128",
         "type": "image/png",
         "purpose":"any maskable"        
@@ -73,7 +73,7 @@ def webmanifest(request):
     
     icons.append(ic128)   
     ic256 = {
-        "src": request.build_absolute_uri(static('me256.png')),
+        "src": request.build_absolute_uri(profile.get('extra_images').get('icon256')),
         "sizes": "256x256",
         "type": "image/png",
         "purpose":"any maskable"        
@@ -81,7 +81,7 @@ def webmanifest(request):
     
     icons.append(ic256)   
     ic512 = {
-        "src": request.build_absolute_uri(static('me512.png')),
+        "src": request.build_absolute_uri(profile.get('extra_images').get('icon512')),
         "sizes": "512x512",
         "type": "image/png",
         "purpose":"any maskable"        

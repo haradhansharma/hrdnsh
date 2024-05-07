@@ -206,6 +206,10 @@ EMAIL_USE_SSL=True
 ADMIN_EMAIL = env("HRDNSH_ADMIN_EMAIL")
 
 
+GPA = env("HRDNSH_GPA")
+
+
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CACHES = {  

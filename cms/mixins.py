@@ -10,6 +10,7 @@ from django.contrib.auth import get_user_model
 from common.utils import optimize_image_for_web
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import ImproperlyConfigured
+from django.core.cache import cache
 
 User = get_user_model()
 
@@ -161,8 +162,7 @@ class SaveAndImageOptimizationMixin:
             if old_instance:
                 if self.main_image != old_instance.main_image:
                     optimized_thumbnail = optimize_image_for_web(self.main_image.path, delete_original=False, width=450, new_name=new_image_name)  
-                    self.thumbnail_image = optimized_thumbnail  
-                    print('165 deleting')  
+                    self.thumbnail_image = optimized_thumbnail                  
                     old_instance.thumbnail_image.delete(save=False)             
                     super().save(*args, **kwargs)          
         
@@ -174,6 +174,8 @@ class SaveAndImageOptimizationMixin:
         # Save the instance again if any image fields were optimized
         if changed_fields:
             super().save(*args, **kwargs)
+        
+            
             
             
     

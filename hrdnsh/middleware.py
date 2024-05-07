@@ -62,15 +62,11 @@ class DynamicSettingsMiddleware:
         
 
     def set_site_id(self, request):
-        host = request.get_host().lower()
-        log.info(f'host is ________{host}')  
-        
-        log.info(f'checking host in __________________ {SITE_CACHE_GLOBAL}')
-        if host in SITE_CACHE_GLOBAL and f'{host}_template' in SITE_CACHE_GLOBAL:
-            log.info(f'host found in cache ________')
+        host = request.get_host().lower()            
+ 
+        if host in SITE_CACHE_GLOBAL and f'{host}_template' in SITE_CACHE_GLOBAL: 
             request.site = SITE_CACHE_GLOBAL[host]            
         else:
-            log.info(f'{host} not found in cache ________')
             with SITE_CACHE_OWN_LOCK:
                 if host not in SITE_CACHE_GLOBAL:
                     try:

@@ -1,6 +1,7 @@
 {% extends "includes/base.html" %}
 {% load static %}
 {% load common %}
+{% load cache %}
 
 
 
@@ -9,16 +10,14 @@
 
 <!-- Start: Top Hero Human Sun -->
 <section class="text-light d-flex justify-content-center align-items-center py-4 py-xl-5 min-vh-100">
-    <div class="container px-0" style="background: url({{profile.home_page_picture}}) right / cover;">
+    <div class="container px-0" style="background: url({{profile.extra_images.hero_background}}) right / cover;">
         <div class="border rounded border-0 d-flex flex-column justify-content-center align-items-center p-4 py-5">
             <div class="row">
                 <div class="col-md-10 col-xl-8 text-start d-flex  justify-content-center align-items-center mx-auto justify-content-md-start align-items-md-center justify-content-xl-center">
                     <div>
                         <h1 class="text-capitalize fw-bold mb-3">{{profile.visitor_addressing_first}}</h1> 
                         <img class="img-fluid specialeffect magic-hover" src="{{profile.name_logo_big}}" width="400px" height="auto" alt="{{profile.profile_name}}">
-                        <p class="fs-4 mb-4 text-justify">{{profile.career_summary}}</p>
-
-                        default
+                        <p class="fs-4 mb-4 text-justify">{{profile.career_summary}}</p>                   
                         <a class="btn btn-primary fs-5 me-2 py-2 px-4 mb-2" role="button" href="{% url 'common:about' %}">RESUME</a>
                         <a class="btn btn-light fs-5 py-2 px-4" role="button" href="{% url 'contact:home' %}">LET'S TALK</a>
                     </div>
@@ -61,9 +60,9 @@
     </div>
 </section><!-- End: Experience section -->
 <!-- Start: Skills and tool section -->
-<section class="d-flex bg-primary justify-content-center align-items-center py-4 py-xl-5 vh-100 position-relative" style="background: url({% static 'assets/img/hsfolioskillsandtools.png' %}) center / cover;">
+<section class="d-flex bg-primary justify-content-center align-items-center py-4 py-xl-5 vh-100 position-relative" style="background: url({{profile.extra_images.skill_hero_background}}) center / cover;">
     <div class="container px-0">
-        <div data-aos="zoom-in" data-aos-duration="1400" class="p-4 py-5">
+        <div data-aos="zoom-in" data-aos-duration="1400" class="p-4 py-5"> 
             <div class="row shadowed-div-out-warning position-relative overflow-hidden rounded-5">
                 <div class="col-12 text-start py-2">
                     <h2 class="text-uppercase fw-bold text-secondary mb-4 fs-8vw magic-hover specialeffect">Skills And Tools</h2>
@@ -106,6 +105,8 @@
                         <p class="fs-4 text-secondary mb-4" data-aos="fade-right" data-aos-duration="1400">Meet me on Audio Visual!</p>
                         <p class="fs-4 mb-4 text-justify lh-sm" data-aos="fade-right" data-aos-duration="1600">I am a Multidisciplinary Web Developer &amp; E-Commerce Strategist, Technical Project Lead And Entrepreneur, dedicated to meeting and exceeding your expectations</p>
                         <div class="my-3">
+
+                            
                             <a class="btn btn-primary btn-lg me-2" role="button" data-aos="fade-right" data-aos-duration="1800" href="{% url 'common:about' %}">Resume</a>
                             <a class="btn btn-light btn-lg" role="button" data-aos="fade-right" data-aos-duration="2200" href="{% url 'contact:home' %}">Let's Talk</a>
                         </div>
@@ -144,15 +145,17 @@
 </section><!-- End: Audio visual section -->
 <!-- Start: Explore me section -->
 <section class="position-relative min-vh-100 bg-primary bg-gradient">
-    <div class="position-relative overflow-hidden" style="height: 500px;background: url({% static 'assets/img/explore_sec.png' %}) left/ cover;">
+    {% cache 5000 exploreme_foot request.site.id %}
+    <div class="position-relative overflow-hidden" style="height: 500px;background: url({{profile.extra_images.explore_sec}}) left/ cover;">
         <h2 class="text-uppercase fw-bold text-secondary fs-8vw-clamp magic-hover specialeffect position-absolute end-0 translate-middle-y top-50" data-aos="zoom-in" data-aos-duration="1200">explore more</h2>
     </div>
+    {% endcache %}
     <div class="container position-relative pb-5" style="top: -50px;">
         <div class="row gy-5 row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5">
             <div class="col d-flex" data-aos="fade-up" data-aos-duration="1250">
                 <a class="d-flex flex-fill text-decoration-none explore-cards" href="{% url 'common:about' %}">
                     <div class="card flex-fill bg-light">
-                        <img class="card-img-top w-100 d-block bg-warning bg-gradient mix-blend-luminosity" src="{% static 'assets/img/about_me.svg' %}" height="100px" width="100%">
+                        <img class="card-img-top w-100 d-block bg-warning bg-gradient mix-blend-luminosity" src="{{profile.extra_images.about_me}}" height="100px" width="100%">
                         <div class="card-body pt-5 p-4">
                             <div class="d-flex flex-shrink-0 justify-content-center align-items-center position-absolute mb-3 bs-icon bg-primary p-2 rounded-circle" style="top: -30px;">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-emoji-neutral">
@@ -167,7 +170,7 @@
             <div class="col d-flex" data-aos="fade-up" data-aos-duration="1450">
                 <a class="d-flex flex-fill text-decoration-none explore-cards" href="{% url 'cms:blog_list' %}">
                     <div class="card flex-fill bg-light">
-                        <img class="card-img-top w-100 d-block bg-info bg-gradient mix-blend-luminosity" src="{% static 'assets/img/snp.svg' %}" height="100px">
+                        <img class="card-img-top w-100 d-block bg-info bg-gradient mix-blend-luminosity" src="{{profile.extra_images.sense_and_publication}}" height="100px">
                         <div class="card-body pt-5 p-4">
                             <div class="d-flex flex-shrink-0 justify-content-center align-items-center position-absolute mb-3 bs-icon lg bg-primary p-2 rounded-circle" style="top: -30px;">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-book">
@@ -181,7 +184,7 @@
             <div class="col d-flex" data-aos="fade-up" data-aos-duration="1650">
                 <a class="d-flex flex-fill text-decoration-none explore-cards" href="{% url 'project:home' %}">
                     <div class="card flex-fill bg-light">
-                        <img class="card-img-top w-100 d-block bg-success bg-gradient mix-blend-luminosity" src="{% static 'assets/img/latest_works.svg' %}" height="100px">
+                        <img class="card-img-top w-100 d-block bg-success bg-gradient mix-blend-luminosity" src="{{profile.extra_images.latest_works}}" height="100px">
                         <div class="card-body pt-5 p-4">
                             <div class="d-flex flex-shrink-0 justify-content-center align-items-center position-absolute mb-3 bs-icon lg bg-primary p-2 rounded-circle" style="top: -30px;">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-bookmark-check-fill">
@@ -196,7 +199,7 @@
             <div class="col d-flex" data-aos="fade-up" data-aos-duration="1850">
                 <a class="d-flex flex-fill text-decoration-none explore-cards" href="{% url 'service:home' %}">
                     <div class="card flex-fill bg-light">
-                        <img class="card-img-top w-100 d-block bg-primary bg-gradient mix-blend-luminosity" src="{% static 'assets/img/professional_services.svg' %}" height="100px">
+                        <img class="card-img-top w-100 d-block bg-primary bg-gradient mix-blend-luminosity" src="{{profile.extra_images.professional_services}}" height="100px">
                         <div class="card-body pt-5 p-4">
                             <div class="d-flex flex-shrink-0 justify-content-center align-items-center position-absolute mb-3 bs-icon lg bg-primary p-2 rounded-circle" style="top: -30px;">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-balloon-heart-fill">
@@ -211,7 +214,7 @@
             <div class="col d-flex" data-aos="fade-up" data-aos-duration="2050">                
                 <a class="d-flex flex-fill text-decoration-none explore-cards" href="{% url 'contact:home' %}">
                     <div class="card flex-fill bg-light">
-                        <img class="card-img-top w-100 d-block bg-secondary bg-gradient mix-blend-luminosity" src="{% static 'assets/img/letstalk.svg' %}" height="100px">
+                        <img class="card-img-top w-100 d-block bg-secondary bg-gradient mix-blend-luminosity" src="{{profile.extra_images.lets_talk}}" height="100px">
                         <div class="card-body pt-5 p-4">
                             <div class="d-flex flex-shrink-0 justify-content-center align-items-center position-absolute mb-3 bs-icon lg bg-primary p-2 rounded-circle" style="top: -30px;">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-emoji-sunglasses-fill">

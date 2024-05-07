@@ -1,5 +1,5 @@
 {% load static%}
-<meta name="google-adsense-account" content="ca-pub-6547428806314947">
+<meta name="google-adsense-account" content="{{gpa}}">
 <title>{{profile.profile_name}} || {{profile.meta_title}}</title>
 <meta name="description" content="{{ profile.meta_description }}">
 <meta name="author" content="{{ profile.profile_name }}">
@@ -33,11 +33,11 @@
     }
 </script>
 
-
-<link rel="icon" type="image/png" sizes="16x16" href="{% static 'me16.png' %}">
-<link rel="icon" type="image/png" sizes="32x32" href="{% static 'me32.png' %}">
-<link rel="icon" type="image/png" sizes="64x64" href="{% static 'me64.png' %}">
-<link rel="icon" type="image/png" sizes="128x128" href="{% static 'me128.png' %}">
-<link rel="icon" type="image/png" sizes="256x256" href="{% static 'me256.png' %}">
-<link rel="icon" type="image/png" sizes="512x512" href="{% static 'me512.png' %}">
+<link rel="icon" href="{{profile.favicon}}" type="image/x-icon">
+<link rel="icon" type="image/png" sizes="16x16" href="{{profile.extra_images.icon16}}">
+<link rel="icon" type="image/png" sizes="32x32" href="{{profile.extra_images.icon32}}">
+<link rel="icon" type="image/png" sizes="64x64" href="{{profile.extra_images.icon64}}">
+<link rel="icon" type="image/png" sizes="128x128" href="{{profile.extra_images.icon128}}">
+<link rel="icon" type="image/png" sizes="256x256" href="{{profile.extra_images.icon256}}">
+<link rel="icon" type="image/png" sizes="512x512" href="{{profile.extra_images.icon512}}">
 

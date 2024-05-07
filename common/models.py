@@ -7,7 +7,8 @@ from django.db import models
 from django.contrib.sites.models import Site
 from django.contrib.sites.managers import CurrentSiteManager
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.validators import FileExtensionValidator
+from django.core.validators import FileExtensionValidator, ValidationError
+from django.template.defaultfilters import filesizeformat
 from django.utils.text import slugify
 from account.models import User
 from cms.managers import PublishManager
@@ -32,12 +33,12 @@ class SiteProfile(SaveAndImageOptimizationMixin, models.Model):
     email = models.EmailField(null=True, blank=True)
     location = models.TextField(null=True, blank=True)
     location_geo_code = models.TextField(null=True, blank=True)    
-    phone = models.CharField(max_length=16, null=True, blank=True)
-    
+    phone = models.CharField(max_length=16, null=True, blank=True) 
+  
     name_logo = models.ImageField(upload_to='profile_logo/', validators=[FileExtensionValidator(['png', 'jpg', 'jpeg', 'webp'])], null=True, blank=True)
     name_logo_big = models.ImageField(upload_to='profile_logo/', validators=[FileExtensionValidator(['png', 'jpg', 'jpeg', 'webp'])], null=True, blank=True)
     
-    favicon = models.ImageField(upload_to='site_image/', validators=[FileExtensionValidator(['png', 'jpg', 'jpeg', 'webp'])], null=True, blank=True)
+    favicon = models.ImageField(upload_to='site_image/', validators=[FileExtensionValidator(['ico'])], null=True, blank=True)
     home_page_picture = models.ImageField(upload_to='site_image/', validators=[FileExtensionValidator(['png', 'jpg', 'jpeg', 'webp'])], null=True, blank=True)    
     about_picture = models.ImageField(upload_to='site_image/', validators=[FileExtensionValidator(['png', 'jpg', 'jpeg', 'webp'])], null=True, blank=True)
     mask_icon = models.FileField(upload_to='site_image/', validators=[FileExtensionValidator(['svg'])], null=True, blank=True)    
@@ -80,8 +81,7 @@ class SiteProfile(SaveAndImageOptimizationMixin, models.Model):
     languages = models.TextField(help_text='Comma Separated', null=True, blank=True) 
     interest = models.TextField(help_text='Comma Separated', null=True, blank=True) 
     
-    image_fields_to_optimize = [
-            'favicon',           
+    image_fields_to_optimize = [          
             'contact_page_picture', 
             'service_page_picture',
             'project_page_picture',
@@ -111,8 +111,7 @@ class SelectedTemplate(models.Model):
     def save(self, *args, **kwargs):           
         super().save(*args, **kwargs)   
         from hrdnsh.middleware import modify_site_cache_global
-        modify_site_cache_global()
-                          
+        modify_site_cache_global()          
  
 
 
@@ -276,5 +275,33 @@ class Template(
 
     def __str__(self):
         return f"Template: {self.title}"
+    
+
+def validate_file_size(file):
+    # 5MB file size limit
+    max_size = 500 * 1024
+    if file.size > max_size:
+        raise ValidationError("The maximum file size that can be uploaded is %s. Your file size is %s." %(filesizeformat(max_size), filesizeformat(file.size)))
+
+    
+    
+    
+class ExtraProfileImages(models.Model):
+    profile =  models.ForeignKey(SiteProfile, on_delete=models.CASCADE, related_name='extra_images')
+    key_name = models.CharField(max_length=150)
+    image = models.FileField(
+        upload_to='profile_template_images/', 
+        validators=[
+            FileExtensionValidator(['png', 'jpg', 'jpeg', 'webp', 'svg']),
+            validate_file_size
+            ], 
+        null=True,
+        blank = True
+      
+        )
+    
+    def __str__(self):
+        return f"File Key: {self.key_name}"
+
         
 
