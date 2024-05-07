@@ -1,4 +1,5 @@
 from pathlib import Path
+from django.http import HttpResponsePermanentRedirect
 import environ
 import os
 from django.conf.urls.static import static
@@ -35,11 +36,20 @@ class DynamicSettingsMiddleware:
         template_path = os.path.join(settings.BASE_DIR, settings.TEMP_DIR, template)   
         if os.path.exists(template_path):
             return True
-        return False    
+        return False       
         
 
     def set_site_id(self, request):
         host = request.get_host()
+        
+        #redirect to https
+        if not request.is_secure() and settings.DEBUG is False:
+            if host.startswith('www.'):
+                new_host = host[4:]
+                url = f"https://{new_host}{request.path}"
+                return HttpResponsePermanentRedirect(url)       
+        
+        
         if host in SITE_CACHE_GLOBAL and f'{host}_template' in SITE_CACHE_GLOBAL:
             request.site = SITE_CACHE_GLOBAL[host]            
         else:
