@@ -40,7 +40,7 @@ class DynamicSettingsMiddleware:
         
 
     def set_site_id(self, request):
-        host = request.get_host()
+        host = request.get_host().lower()
         
         #redirect to https
         if not request.is_secure():
@@ -72,7 +72,7 @@ class DynamicSettingsMiddleware:
                         
                         domain, port = split_domain_port(host)
                         if domain not in SITE_CACHE_GLOBAL:
-                            site = Site.objects.get(domain__iexact=host)
+                            site = Site.objects.get(domain__iexact=domain)
                             SITE_CACHE_GLOBAL[domain] = site    
                                                     
                             try:

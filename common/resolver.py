@@ -3,7 +3,7 @@ from django.contrib.sites.models import Site
 
 def check_host(host, request, **kwargs):
     # Check if the host starts with 'www.' and create list of possible hosts
-    if host.startswith('www.'):
+    if host.lower().startswith('www.'):
         hosts = [host, host.replace('www.', '')]
     else:
         hosts = [host, 'www.' + host]
@@ -13,7 +13,7 @@ def check_host(host, request, **kwargs):
 
     if valid_hostnames is not None:
         # If host is in valid_hostnames, return True
-        if host in valid_hostnames:
+        if host.lower() in valid_hostnames:
             return True
     else:
         # If valid_hostnames not in cache, query database
