@@ -13,17 +13,17 @@ def site_profile(request):
         return data
     
     
-    currect_site = get_current_site(request)
+    current_site = get_current_site(request)
     try:
-        current_site_profile = currect_site.profile
+        current_site_profile = current_site.profile
     except:
-        SiteProfile.objects.create(site=currect_site)
-        current_site_profile = currect_site.profile
+        SiteProfile.objects.create(site=current_site)
+        current_site_profile = current_site.profile
 
 
     data = {
-        'domain' : currect_site.domain,
-        'site_name' : currect_site.name,
+        'domain' : current_site.domain,
+        'site_name' : current_site.name,
         'meta_title' : current_site_profile.meta_title,
         'meta_description' : current_site_profile.meta_description,
         'visitor_addressing_first' : current_site_profile.visitor_addressing_first,

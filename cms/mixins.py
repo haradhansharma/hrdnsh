@@ -161,13 +161,14 @@ class SaveAndImageOptimizationMixin:
             if old_instance:
                 if self.main_image != old_instance.main_image:
                     optimized_thumbnail = optimize_image_for_web(self.main_image.path, delete_original=False, width=450, new_name=new_image_name)  
-                    self.thumbnail_image = optimized_thumbnail   
+                    self.thumbnail_image = optimized_thumbnail  
+                    print('165 deleting')  
                     old_instance.thumbnail_image.delete(save=False)             
                     super().save(*args, **kwargs)          
         
         image_fields = getattr(self, 'image_fields_to_optimize', [])                
-
-        # self._process_image_fields(old_instance, image_fields)
+        
+  
         changed_fields = self._process_image_fields(old_instance, image_fields)
         
         # Save the instance again if any image fields were optimized
@@ -185,14 +186,15 @@ class SaveAndImageOptimizationMixin:
                 old_image_field = getattr(old_instance, field_name)
                 new_image_field = getattr(self, field_name)
                 if old_image_field != new_image_field:                
-                    if new_image_field:   
+                    if new_image_field:  
+                        print('189 deleting') 
                         old_image_field.delete(save=False)                                         
                         optimized_webp = self._optimize_image(field_name, new_image_field)                                 
                         setattr(self, field_name, optimized_webp) 
                         changed_fields.append(field_name)                   
             else: 
-                image_field = getattr(self, field_name)
-                if image_field:   
+                image_field = getattr(self, field_name, None)           
+                if image_field is not None:   
                     optimized_webp = self._optimize_image(field_name, image_field)    
                     setattr(self, field_name, optimized_webp)  
                     changed_fields.append(field_name)

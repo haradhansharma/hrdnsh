@@ -15,6 +15,7 @@ class HomeView(View):
     template_class = 'common/index.html'
     
     def get(self, request, *args, **kwargs):
+        
         experiences = get_experience(request)     
         
         context = {

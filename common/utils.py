@@ -23,7 +23,7 @@ def optimize_image_for_web(image_path, delete_original: bool, new_name=None, hei
     # Open the image
     with default_storage.open(image_path, 'rb') as image_file:
         image = Image.open(image_file)
-
+        print(f'image_path: {image_path}')
         # If height or width is provided, resize the image
         if height or width:
             # Calculate new size maintaining the aspect ratio
@@ -40,33 +40,37 @@ def optimize_image_for_web(image_path, delete_original: bool, new_name=None, hei
         webp_image = ContentFile(b'')
         image.save(webp_image, 'webp', quality=quality)
         webp_image.seek(0)
-
-        # Overwrite the original image with the optimized one
-        optimized_image_path = image_path.split('.')[0] + '.webp'  
-        saved_image = default_storage.save(optimized_image_path, webp_image)
+     
+        # Overwrite the original image with the optimized one        
+        webp_image_full_path = image_path.split('.')[0] + '.webp'  
         
+        # get image str to save in database
+        saved_webp_image_database_path = default_storage.save(webp_image_full_path, webp_image)        
         
-    if new_name is not None:        
-        directory, filename = os.path.split(optimized_image_path)  
-        ext = filename.split('.')[-1]
-        new_filename = f"{new_name}.{ext}" 
-        new_path = os.path.join(directory, new_filename)   
-        if os.path.exists(new_path):              
-            new_filename = f"{new_name}_{uuid4().hex[:8]}.{ext}"
-            new_path = os.path.join(directory, new_filename)  
-            
-        # Make sure the file is closed before renaming
+        # extracting image file name and dir name
+        image_dir, image_name = os.path.split(webp_image_full_path)
         
-        os.rename(optimized_image_path, new_path)  # Rename the file
-        # saved_image = new_path
- 
-        # os.rename(optimized_image_path, new_path)            
-        saved_directory, _ = os.path.split(saved_image)            
-        saved_image = (os.path.join(saved_directory, new_filename)).replace("\\", "/")  
-        
-    if delete_original:      
+        # building full path of new genarated optimized image.
+        # we need to avoid twing of upload path in model   
+        # it is needed to rename 
+        optimized_full_path =  os.path.normpath(os.path.join(image_dir, os.path.split(saved_webp_image_database_path)[-1]))   
+    
+    # genarally new new name comes from thumbnail image   
+    if new_name is not None:            
+        ext = image_name.split('.')[-1]
+        new_image_name = f"{new_name}.{ext}" 
+        new_full_path = os.path.join(image_dir, new_image_name)   
+        if os.path.exists(new_full_path):              
+            new_image_name = f"{new_name}_{uuid4().hex[:8]}.{ext}"
+            new_full_path = os.path.join(image_dir, new_image_name)                       
+        os.rename(optimized_full_path, new_full_path)   
+        saved_webp_image = os.path.normpath(os.path.join(os.path.split(saved_webp_image_database_path)[0], new_image_name))       
+     
+     
+    # after optimizing thumbnail then main image we would delete original image we uploaded   
+    if delete_original:     
         default_storage.delete(image_path)
 
 
-    return saved_image
+    return saved_webp_image
 
