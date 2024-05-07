@@ -1,6 +1,8 @@
 from django.contrib import admin
 from .models import *
 from django.contrib.sites.models import Site
+from django_summernote.admin import SummernoteModelAdmin
+
 
 class SelectedtemplateInline(admin.StackedInline): 
     model = SelectedTemplate
@@ -12,7 +14,17 @@ admin.site.register(SiteProfile, SiteProfileAdmin)
 
 
 admin.site.register(KeyQualification)
-admin.site.register(Template)
+
+
+class TemplateAdmin(SummernoteModelAdmin):
+    summernote_fields = ('body', )
+    prepopulated_fields = {'slug': ('title',)}
+    list_display = ('title', 'status',)    
+    class Media:
+        css = {
+            'all': ('assets/css/custom_admin.css',)
+        }
+admin.site.register(Template, TemplateAdmin)
 
 admin.site.unregister(Site)
 admin.site.register(Site)
