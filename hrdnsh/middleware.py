@@ -41,18 +41,23 @@ class DynamicSettingsMiddleware:
 
     def set_site_id(self, request):
         host = request.get_host().lower()
-        
+        log.info(f'host is ________{host}')
         #redirect to https
         if not request.is_secure():
+            log.info(f'request is not secure ________')
             if host.startswith('www.'):
+                log.info(f'start with www. ________')
                 new_host = host[4:]
                 url = f"https://{new_host}{request.path}"
+                log.info(f'new url build {url} ________')
                 return HttpResponsePermanentRedirect(url)       
         
-        
+        log.info(f'checking host in __________________ {SITE_CACHE_GLOBAL}')
         if host in SITE_CACHE_GLOBAL and f'{host}_template' in SITE_CACHE_GLOBAL:
+            log.info(f'host found in cache ________')
             request.site = SITE_CACHE_GLOBAL[host]            
         else:
+            log.info(f'{host} not found in cache ________')
             with SITE_CACHE_OWN_LOCK:
                 if host not in SITE_CACHE_GLOBAL:
                     try:
