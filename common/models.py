@@ -197,15 +197,15 @@ class SkillsAndTools(models.Model):
     def __str__(self):
         return self.name
     
-    def save(self, *args, **kwargs):           
-        super().save(*args, **kwargs)        
-        if self.icon_image: 
-            icon_image = self.icon_image
-            ext = str(icon_image).split('.')[-1]        
-            if ext in ['png', 'jpg', 'jpeg']:
-                optimized_icon_image = optimize_image_for_web(icon_image.path, delete_original = True, width=80)  
-                self.icon_image = optimized_icon_image    
-                super().save(*args, **kwargs)  
+    # def save(self, *args, **kwargs):           
+    #     super().save(*args, **kwargs)        
+    #     if self.icon_image: 
+    #         icon_image = self.icon_image
+    #         ext = str(icon_image).split('.')[-1]        
+    #         if ext in ['png', 'jpg', 'jpeg']:
+    #             optimized_icon_image = optimize_image_for_web(icon_image.path, delete_original = True, width=80)  
+    #             self.icon_image = optimized_icon_image    
+    #             super().save(*args, **kwargs)  
                 
 
 class KeyQualification(  
