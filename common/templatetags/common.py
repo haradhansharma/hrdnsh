@@ -27,7 +27,7 @@ def bg_class():
         {'bgcolor' : 'bg-danger-subtle', 'bordercolor' : 'border-danger', 'textcolor' : 'text-danger', 'linkcolor' : 'link-light', 'linkbgcolor':'bg-danger'},
         {'bgcolor' : 'bg-success-subtle', 'bordercolor' : 'border-success', 'textcolor' : 'text-success', 'linkcolor' : 'link-light', 'linkbgcolor':'bg-success'},
         {'bgcolor' : 'bg-dark-subtle', 'bordercolor' : 'border-dark', 'textcolor' : 'text-dark', 'linkcolor' : 'link-light', 'linkbgcolor':'bg-dark'},
-        {'bgcolor' : 'bg-primary-subtle', 'bordercolor' : 'border-primary', 'textcolor' : 'text-primary', 'linkcolor' : 'link-light', 'linkbgcolor':'bg-primary'},
+        # {'bgcolor' : 'bg-primary-subtle', 'bordercolor' : 'border-primary', 'textcolor' : 'text-primary', 'linkcolor' : 'link-light', 'linkbgcolor':'bg-primary'},
         {'bgcolor' : 'bg-secondary-subtle', 'bordercolor' : 'border-secondary', 'textcolor' : 'text-secondary', 'linkcolor' : 'link-light', 'linkbgcolor':'bg-secondary'},
         {'bgcolor' : 'bg-warning-subtle', 'bordercolor' : 'border-warning', 'textcolor' : 'text-warning', 'linkcolor' : 'link-primary', 'linkbgcolor':'bg-warning'},        
         
