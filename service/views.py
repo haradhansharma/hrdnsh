@@ -16,7 +16,7 @@ from django.contrib.contenttypes.models import ContentType
 class ServiceHomeView(ListView):
     model = Service
     template_name = 'service/services.html'
-    paginate_by = 5
+    paginate_by = 10
     
     def get_queryset(self):      
         queryset = self.model.status_objects.published_on_site(self.request).order_by('-created_at')
