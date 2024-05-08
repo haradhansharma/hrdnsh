@@ -48,8 +48,8 @@
   --bs-body-bg: #280559;
   --bs-body-bg-rgb: 40,5,89;
   --bs-body-font-family: Aldrich, sans-serif;
-  --bs-body-font-size: 2rem;
-  --bs-body-line-height: 2.25rem;
+  /* --bs-body-font-size: 2rem;
+  --bs-body-line-height: 2.25rem; */
   --bs-link-color: #a6034f;
   --bs-link-color-rgb: 166,3,79;
   --bs-link-hover-color: #ee07f2;
