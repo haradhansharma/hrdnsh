@@ -18,6 +18,8 @@ import zipfile
 from django.core.cache import cache
 from django.core.mail import get_connection
 from django.contrib import messages
+from django.core.files.storage import default_storage
+
 
 
 class SiteProfile(SaveAndImageOptimizationMixin, models.Model):    
@@ -196,6 +198,21 @@ class SkillsAndTools(models.Model):
     
     def __str__(self):
         return self.name
+    
+    def save(self, *args, **kwargs):
+        """
+        Overrides the default save method to delete the old image file when updating an instance.
+        """
+        # Get the old image path (if it exists) before saving the new one
+        old_image_path = self.icon_image.path if self.pk and self.icon_image else None
+
+        super().save(*args, **kwargs)  # Save the model instance first
+
+        # Check if the image field has changed (new image uploaded)
+        if self.icon_image and old_image_path and old_image_path != self.icon_image.path:
+            # Delete the old image file using the default storage
+            if default_storage.exists(old_image_path):
+                default_storage.delete(old_image_path)
     
     # def save(self, *args, **kwargs):           
     #     super().save(*args, **kwargs)        
