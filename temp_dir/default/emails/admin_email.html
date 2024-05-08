@@ -7,14 +7,14 @@
     <title>New Contact Submitted</title>
 </head>
 <body>
-    <p>Dear Admin,</p>
-    <p>A new contact has been submitted:</p>
+    <p>Dear {{profile_name}},</p>
+    <p>A new contact has been received to your contact form:</p>
     <ul>
         <li><strong>Name:</strong> {{ name }}</li>
         <li><strong>Email:</strong> {{ email }}</li>
         <li><strong>Message:</strong> {{ message }}</li>
     </ul>
-    <p>Please take appropriate action.</p>
+    <p>Please take appropriate action. You can reply by clicking reply button or using reply_to email.</p>
     <p>Best regards,<br>{{profile_name}}</p>
 </body>
 </html>

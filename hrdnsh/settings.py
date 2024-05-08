@@ -167,7 +167,7 @@ if DEBUG:
         os.path.join(BASE_DIR, 'static')
     ]
        
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     
     RECAPTCHA_PUBLIC_KEY = str('6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI')
     RECAPTCHA_PRIVATE_KEY = str('6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe')

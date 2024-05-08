@@ -1,8 +1,9 @@
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.views import View
 from django.views.generic import FormView
 from django.urls import reverse_lazy
-from django.core.mail import send_mail
+from contact.utils import send_mail
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
@@ -10,6 +11,10 @@ from django.templatetags.static import static
 from common.context_processor import site_profile
 from .forms import ContactForm
 from django.contrib.sites.shortcuts import get_current_site
+from django.contrib import messages
+import logging
+log =  logging.getLogger('log')
+
 
 class HomeView(FormView):
     template_name = 'contact/contact.html'
@@ -21,42 +26,65 @@ class HomeView(FormView):
 
     def form_valid(self, form):
         obj = form.save(commit = False)        
-        obj.site = get_current_site(self.request)
+        obj.site = self.request.site
         obj.save()
         
         profile = self.get_profile()
-
+        personal_settings = self.request.site.personalized_setting if hasattr(self.request.site, 'personalized_setting') else False
+        form_email = form.cleaned_data['email']
         # Send email to user
-        user_subject = 'Haradhan Sharma-Thank you for contacting me!'
-        user_html_message = render_to_string('emails/user_contact_email.html', {'name': form.cleaned_data['name'], 'profile_name' : profile.get('profile_name')})
+        user_subject = f'{profile.get("profile_name")}-Thank you for contacting me!'
+        user_html_message = render_to_string(
+            'emails/user_contact_email.html', 
+            {
+                'name': form.cleaned_data['name'], 
+                'profile_name' : profile.get('profile_name'), 
+                'personal_settings' : personal_settings
+            })
         user_plain_message = strip_tags(user_html_message)
-        send_mail(
-            user_subject, 
-            user_plain_message, 
-            settings.EMAIL_HOST_USER, 
-            [form.cleaned_data['email']], 
-            html_message=user_html_message
-        )
+        
+        profile_email = personal_settings.email if personal_settings else profile.get('email')
+        profile_domain = profile.get('domain')
+        
+        try:
+            send_mail(
+                user_subject, 
+                user_plain_message, 
+                personal_settings.email if personal_settings else settings.DEFAULT_FROM_EMAIL, 
+                [form_email], 
+                auth_user=personal_settings.host_user if personal_settings else settings.EMAIL_HOST_USER, 
+                auth_password=personal_settings.host_password if personal_settings else settings.EMAIL_HOST_PASSWORD, 
+                html_message=user_html_message
+            )
+        except Exception as e:
+            messages.warning(self.request, f'Message not sent there is error! Please sent your email to {profile_email}')
+            log.warning(f'WARNING: Contact email not sent for profile {profile_domain} DUE TO: {e} ')
+            
+            return HttpResponseRedirect(self.request.path)
 
-        # Send email to admin
-        admin_subject = 'Haradhan Sharma-New contact submitted'
+        # Send email to profile
+        admin_subject = f'{profile.get("profile_name")}-New contact submitted'
         admin_html_message = render_to_string(
             'emails/admin_email.html', 
             {
                 'name': form.cleaned_data['name'], 
-                'email': form.cleaned_data['email'], 
+                'email': form_email, 
                 'message': form.cleaned_data['message'], 
                 'profile_name' : profile.get('profile_name')
             }
         )
         admin_plain_message = strip_tags(admin_html_message)
-        send_mail(
-            admin_subject, 
-            admin_plain_message, 
-            settings.EMAIL_HOST_USER, 
-            [settings.ADMIN_EMAIL], 
-            html_message=admin_html_message
-        )
+        try:
+            send_mail(
+                admin_subject, 
+                admin_plain_message, 
+                settings.EMAIL_HOST_USER, 
+                [personal_settings.email if personal_settings else profile.get('email')], 
+                reply_to = [form_email],
+                html_message=admin_html_message
+            )
+        except Exception as e:            
+            log.warning(f'WARNING: Contact form notification not sent to profile {profile_domain} DUE TO: {e} ')
 
         return super().form_valid(form)
 

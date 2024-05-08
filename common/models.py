@@ -16,7 +16,8 @@ from cms.mixins import CategoryMixin, DateTimeMixin, ImageMixin, SaveAndImageOpt
 from common.utils import optimize_image_for_web
 import zipfile
 from django.core.cache import cache
-# from hrdnsh.middleware import SITE_CACHE
+from django.core.mail import get_connection
+from django.contrib import messages
 
 
 class SiteProfile(SaveAndImageOptimizationMixin, models.Model):    
@@ -302,6 +303,50 @@ class ExtraProfileImages(models.Model):
     
     def __str__(self):
         return f"File Key: {self.key_name}"
+    
+import smtplib
 
-        
+from django.core.exceptions import ValidationError
+from django.core.mail.backends.smtp import EmailBackend
+
+class PersonalizedEmailSetting(models.Model):
+    site = models.OneToOneField(Site, on_delete=models.CASCADE, related_name='personalized_setting')
+    email = models.EmailField('Sender Email', help_text="If provided Acknowledgement of contact form will be sent from this email and Contact Notification will receive here.")
+    host = models.CharField(max_length=250, help_text='Email will sent using this host')
+    port = models.IntegerField('SMTP port', help_text="SMTP port from your email configuration settings to sent email")
+    host_user = models.CharField(help_text="Email user", max_length=150)
+    host_password = models.CharField(max_length=250, help_text="Email Password")
+    acknowledge_message = models.TextField(max_length=500, help_text="Do not include Addrssing Or Email Signature. Just Write After Dear Client and before Best Regards")
+    
+    def __str__(self):
+        return f"Email Settings For: {self.site.domain}"
+    
+
+    def clean(self):
+        """
+        Checks the validity of email credentials during saving.
+        Raises ValidationError if connection or authentication fails.
+        """
+
+        try:
+            # Create a temporary EmailBackend instance for testing
+            backend = EmailBackend(
+                host=self.host,
+                port=self.port,
+                username=self.host_user,
+                password=self.host_password,
+                use_ssl=True,
+                use_tls=False  
+                
+            )
+            connection = backend.open()   
+            if connection:
+                backend.close() 
+
+        except (smtplib.SMTPException, smtplib.SMTPAuthenticationError) as e:
+            message = f"Email connection failed: {str(e)}"
+            raise ValidationError(message)
+
+        return super().clean()
+
 

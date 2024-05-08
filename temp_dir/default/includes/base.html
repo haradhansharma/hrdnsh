@@ -31,7 +31,15 @@
     <!-- End: Webpage Loader Before window ready -->
     <main id="main" class="main vw-100 m-0 d-block">
         {% include "includes/header.html" %}
-
+   
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li class="alert alert-success list-unstyled" role="alert">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+     
         {% block content %}
         {% endblock %}
 

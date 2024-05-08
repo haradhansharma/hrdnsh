@@ -1,4 +1,6 @@
 from django.contrib import admin
+
+from common.forms import PersonalizedEmailSettingsForm
 from .models import *
 from django.contrib.sites.models import Site
 from django_summernote.admin import SummernoteModelAdmin
@@ -52,3 +54,15 @@ class ExperienceAdmin(admin.ModelAdmin):
     inlines = [WhatDidThereInline, SkillsAndToolsInline]
 
 admin.site.register(Experience, ExperienceAdmin)
+
+
+
+
+
+
+class PersonalizedEmailSettingAdmin(admin.ModelAdmin):
+    
+    form = PersonalizedEmailSettingsForm
+    
+
+admin.site.register(PersonalizedEmailSetting, PersonalizedEmailSettingAdmin)
