@@ -104,3 +104,15 @@ def webmanifest(request):
     return JsonResponse(data, safe=False)
 
 
+def maintanace_redirect(request):
+    template_class = 'maintanace_redirect.html'
+    
+    context = {
+        
+    }
+    response = render(request, template_class, context)
+    response['X-Robots-Tag'] = 'NOINDEX, NOFOLLOW'
+    return response
+    
+
+

@@ -66,7 +66,7 @@ TEMPLATE_TAGS = ['django_summernote.templatetags.summernote']
 AUTH_USER_MODEL = 'account.User'
 AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
 
-MIDDLEWARE = [
+MIDDLEWARE = [ 
     
     'dynamic_host.middleware.AllowedHostMiddleWare', 
     'hrdnsh.middleware.HttpsRedirectMiddleware',   
@@ -75,11 +75,15 @@ MIDDLEWARE = [
     # 'django.contrib.sites.middleware.CurrentSiteMiddleware',     
     'hrdnsh.middleware.DynamicSettingsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    
     'django.middleware.common.CommonMiddleware',
+    
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'hrdnsh.middleware.MaintananceModeMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
     
 ]
 
@@ -207,7 +211,10 @@ ADMIN_EMAIL = env("HRDNSH_ADMIN_EMAIL")
 
 GPA = env("HRDNSH_GPA")
 
-
+if env("HRDNSH_MAINTANANCE_MODE").lower() == 'true':
+    MAINTANANCE_MODE = True
+else:
+    MAINTANANCE_MODE = False
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

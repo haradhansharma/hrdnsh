@@ -11,8 +11,9 @@ class CustomFileCache(FileBasedCache):
         
         self._cull()
         fd, tmp_path = tempfile.mkstemp(dir=self._dir)
-        os.chmod(self._dir, 0o777)        
-        os.chmod(fd, 0o666)
+        if os.name != 'nt':
+            os.chmod(self._dir, 0o775)        
+            os.chmod(fd, 0o666)
         renamed = False
         try:
             with open(fd, "wb") as f:

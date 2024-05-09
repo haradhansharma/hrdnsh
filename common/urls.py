@@ -5,5 +5,7 @@ app_name = 'common'
 urlpatterns = [
    path('', HomeView.as_view(), name='home'),
    path('about/', AboutView.as_view(), name='about'),
+   path('maintanace_mode/', maintanace_redirect, name='maintanace_redirect'),
+   
    
 ]

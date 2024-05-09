@@ -1,5 +1,7 @@
 from pathlib import Path
 from django.http import HttpRequest, HttpResponsePermanentRedirect
+from django.shortcuts import redirect
+from django.urls import reverse
 import environ
 import os
 from django.conf.urls.static import static
@@ -22,14 +24,30 @@ def modify_site_cache_global():
     global SITE_CACHE_GLOBAL
     SITE_CACHE_GLOBAL = {}
     
+    
+class MaintananceModeMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+        
+    def __call__(self, request):
+        redirect_path = reverse('common:maintanace_redirect')
+        if request.path != redirect_path:
+            if settings.MAINTANANCE_MODE:
+                if not request.user.is_superuser:
+                    return HttpResponsePermanentRedirect(reverse('common:maintanace_redirect'))    
+        
+        response = self.get_response(request)
+        return response
+    
+    
 
 class HttpsRedirectMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
         
     def __call__(self, request):
-        host = request.get_host().lower()
-        # Redirect to HTTPS
+        host = request.get_host().lower()       
+      
         if settings.PRODUCTION:
             if not request.is_secure() or host.startswith('www.'):
                 if host.startswith('www.'):
@@ -62,7 +80,7 @@ class DynamicSettingsMiddleware:
         
 
     def set_site_id(self, request):
-        host = request.get_host().lower()            
+        host = request.get_host().lower()   
  
         if host in SITE_CACHE_GLOBAL and f'{host}_template' in SITE_CACHE_GLOBAL: 
             request.site = SITE_CACHE_GLOBAL[host]            
