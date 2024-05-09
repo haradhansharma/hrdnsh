@@ -34,7 +34,7 @@ class MaintananceModeMiddleware:
         if request.path != redirect_path:
             if settings.MAINTANANCE_MODE:
                 if not request.user.is_superuser:
-                    return HttpResponsePermanentRedirect(reverse('common:maintanace_redirect'))    
+                    return HttpResponsePermanentRedirect(redirect_path)    
         
         response = self.get_response(request)
         return response
