@@ -2,8 +2,7 @@ User-agent: *
 Disallow: /admin/
 Disallow: /backdoor/
 Disallow: /*.pdf$
-
 Crawl-delay: 3
-Disallow: /robot-art/
+
 
 
