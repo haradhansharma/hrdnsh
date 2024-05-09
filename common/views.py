@@ -42,7 +42,7 @@ class AboutView(View):
         profile = site_profile(request)     
         
         profile['meta_title'] = 'About Me'
-        profile['meta_description'] = profile.get('career_summary')[:136] + ' ...' if len(profile.get('career_summary')) > 140 else profile.get('career_summary')
+        profile['meta_description'] = profile.get('career_summary')[:140] + ' ...' if len(profile.get('career_summary')) > 140 else profile.get('career_summary')
     
         profile['meta_image'] = self.request.build_absolute_uri(profile.get('about_picture'))
       

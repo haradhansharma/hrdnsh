@@ -37,7 +37,7 @@ class ProjectHomeView(ListView):
       
         profile = site_profile(self.request)   
         profile['meta_title'] = profile.get('project_page_title')
-        profile['meta_description'] = profile.get('project_page_description')[:136] + ' ...' if len(profile.get('project_page_description')) > 140 else profile.get('project_page_description')
+        profile['meta_description'] = profile.get('project_page_description')[:140] + ' ...' if len(profile.get('project_page_description')) > 140 else profile.get('project_page_description')
     
         profile['meta_image'] = self.request.build_absolute_uri(profile.get('service_page_picture'))
         
@@ -70,7 +70,7 @@ class ProjectDetailView(DetailView):
         profile = site_profile(self.request)   
         profile['meta_title'] = obj.title
         sumamry = strip_tags(obj.summary)
-        profile['meta_description'] = sumamry[:136] + ' ...' if len(sumamry) > 140 else sumamry
+        profile['meta_description'] = sumamry[:140] + ' ...' if len(sumamry) > 140 else sumamry
         obj_picture = obj.main_image
         profile['meta_image'] = self.request.build_absolute_uri(obj_picture.url)        
         context['profile'] = profile

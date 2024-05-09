@@ -60,7 +60,7 @@ class BlogListView(ListView):
         profile = site_profile(self.request)   
         profile['meta_title'] = 'Tagged Sense and Publications' if 'tag_id' in self.kwargs else ('Categoraise Sense and Publication' if 'slug' in self.kwargs else profile['blog_page_title'])
         sumamry = profile['blog_page_description']
-        profile['meta_description'] = sumamry[:136] + ' ...' if len(sumamry) > 140 else sumamry
+        profile['meta_description'] = sumamry[:140] + ' ...' if len(sumamry) > 140 else sumamry
   
         profile['meta_image'] = self.request.build_absolute_uri(profile['blog_page_picture'])        
         context['profile'] = profile                     
@@ -104,7 +104,7 @@ class BlogDetailView(DetailView):
         profile = site_profile(self.request)   
         profile['meta_title'] = obj.title
         sumamry = strip_tags(obj.summary)
-        profile['meta_description'] = sumamry[:136] + ' ...' if len(sumamry) > 140 else sumamry
+        profile['meta_description'] = sumamry[:140] + ' ...' if len(sumamry) > 140 else sumamry
         obj_picture = obj.main_image
         profile['meta_image'] = self.request.build_absolute_uri(obj_picture.url)        
         context['profile'] = profile  

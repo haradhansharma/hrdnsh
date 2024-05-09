@@ -58,7 +58,7 @@ class ServiceDetailView(DetailView):
         profile = site_profile(self.request)   
         profile['meta_title'] = obj.title
         sumamry = strip_tags(obj.summary)
-        profile['meta_description'] = sumamry[:136] + ' ...' if len(sumamry) > 140 else sumamry
+        profile['meta_description'] = sumamry[:140] + ' ...' if len(sumamry) > 140 else sumamry
         obj_picture = obj.main_image
         profile['meta_image'] = self.request.build_absolute_uri(obj_picture.url)        
         context['profile'] = profile
