@@ -27,7 +27,7 @@ class ServiceHomeView(ListView):
       
         profile = site_profile(self.request)   
         profile['meta_title'] = profile.get('service_page_title')
-        profile['meta_description'] = profile.get('service_page_description')[:136] + ' ...' if len(profile.get('service_page_description')) > 140 else profile.get('service_page_description')
+        profile['meta_description'] = profile.get('service_page_description')[:140] + ' ...' if len(profile.get('service_page_description')) > 140 else profile.get('service_page_description')
  
         profile['meta_image'] = self.request.build_absolute_uri(profile.get('service_page_picture'))
         

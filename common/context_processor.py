@@ -51,7 +51,7 @@ def site_profile(request):
         'domain' : current_site.domain,
         'site_name' : current_site.name,
         'meta_title' : current_site_profile.meta_title,
-        'meta_description' : current_site_profile.meta_description[:140] + ' ...' if current_site_profile.meta_description > 140 else current_site_profile.meta_description,
+        'meta_description' : current_site_profile.meta_description[:140] + ' ...' if len(current_site_profile.meta_description) > 140 else current_site_profile.meta_description,
         'visitor_addressing_first' : current_site_profile.visitor_addressing_first,
         'visitor_addressing_second' : current_site_profile.visitor_addressing_second,
         
