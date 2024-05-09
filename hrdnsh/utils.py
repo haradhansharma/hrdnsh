@@ -3,11 +3,9 @@ import glob
 from django.core.cache.backends.filebased import FileBasedCache
 
 class CustomFileCache(FileBasedCache):
-    def get(self, key, default=None, version=None):        
-        super().get(key, default, version)
-        fname = self._key_to_file(key, version)
-        os.chmod(fname, 0o666) 
-        
+    def _write_content(self, file, timeout, value):
+        os.chmod(file, 0o666)
+        super()._write_content(file, timeout, value)
    
         
 
