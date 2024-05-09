@@ -8,9 +8,10 @@ class CustomFileCache(FileBasedCache):
     def set(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
         self._createdir()
         fname = self._key_to_file(key, version)
-        os.chmod(fname, 0o666)
+        
         self._cull()
         fd, tmp_path = tempfile.mkstemp(dir=self._dir)
+        os.chmod(fd, 0o666)
         renamed = False
         try:
             with open(fd, "wb") as f:
