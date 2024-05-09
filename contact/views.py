@@ -21,6 +21,11 @@ class HomeView(FormView):
     form_class = ContactForm
     success_url = reverse_lazy('contact:success')
     
+    def render_to_response(self, context, **response_kwargs):
+        response = super().render_to_response(context, **response_kwargs)
+        response['X-Robots-Tag'] = 'INDEX, FOLLOW'
+        return response
+    
     def get_profile(self):
         return site_profile(self.request)
 

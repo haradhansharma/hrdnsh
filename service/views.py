@@ -18,6 +18,11 @@ class ServiceHomeView(ListView):
     template_name = 'service/services.html'
     paginate_by = 10
     
+    def render_to_response(self, context, **response_kwargs):
+        response = super().render_to_response(context, **response_kwargs)
+        response['X-Robots-Tag'] = 'INDEX, FOLLOW'
+        return response
+    
     def get_queryset(self):      
         queryset = self.model.status_objects.published_on_site(self.request).order_by('-created_at')
         return queryset
@@ -33,14 +38,18 @@ class ServiceHomeView(ListView):
         
         context['profile'] = profile
         
-        return context
-    
+        return context   
 
 
 class ServiceDetailView(DetailView):
     model = Service
     template_name = 'service/service_details.html'
     context_object_name = 'service'
+    
+    def render_to_response(self, context, **response_kwargs):
+        response = super().render_to_response(context, **response_kwargs)
+        response['X-Robots-Tag'] = 'INDEX, FOLLOW'
+        return response
     
 
     def get_context_data(self, **kwargs):

@@ -15,6 +15,11 @@ class ProjectHomeView(ListView):
     template_name = 'project/projects.html'
     paginate_by = 5
     
+    def render_to_response(self, context, **response_kwargs):
+        response = super().render_to_response(context, **response_kwargs)
+        response['X-Robots-Tag'] = 'INDEX, FOLLOW'
+        return response
+    
     def get_queryset(self):      
         queryset = self.model.status_objects.published_on_site(self.request).order_by('-created_at')
         
@@ -50,6 +55,11 @@ class ProjectDetailView(DetailView):
     model = Project
     template_name = 'project/project_details.html'
     context_object_name = 'project'
+    
+    def render_to_response(self, context, **response_kwargs):
+        response = super().render_to_response(context, **response_kwargs)
+        response['X-Robots-Tag'] = 'INDEX, FOLLOW'
+        return response
     
     def get_queryset(self):      
         queryset = self.model.status_objects.published_on_site(self.request).order_by('-created_at')        

@@ -67,12 +67,22 @@ class BlogListView(ListView):
         context['indicator'] = 'Tagged' if 'tag_id' in self.kwargs else ('Categoraise' if 'slug' in self.kwargs else 'Blogs')
         
         return context
+    
+    def render_to_response(self, context, **response_kwargs):
+        response = super().render_to_response(context, **response_kwargs)
+        response['X-Robots-Tag'] = 'INDEX, FOLLOW'
+        return response
  
 # @method_decorator(xframe_options_exempt, name='dispatch')   
 class BlogDetailView(DetailView):
     model = Blog
     template_name = 'cms/blog_details.html'
     context_object_name = 'post'
+    
+    def render_to_response(self, context, **response_kwargs):
+        response = super().render_to_response(context, **response_kwargs)
+        response['X-Robots-Tag'] = 'INDEX, FOLLOW'
+        return response
     
     def get_queryset(self):        
         queryset = self.model.status_objects.published_on_site(self.request)        

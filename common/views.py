@@ -22,8 +22,10 @@ class HomeView(View):
             'experiences' : experiences 
         }
         
+        response = render(request, self.template_class, context)
+        response['X-Robots-Tag'] = 'INDEX, FOLLOW'
+        return response
         
-        return render(request, self.template_class, context)
 
     def post(self, request, *args, **kwargs):
         return HttpResponse('POST request!')
@@ -56,8 +58,10 @@ class AboutView(View):
         }
         
         
-        return render(request, self.template_class, context)
-
+  
+        response = render(request, self.template_class, context)
+        response['X-Robots-Tag'] = 'INDEX, FOLLOW'
+        return response
     
     
     
