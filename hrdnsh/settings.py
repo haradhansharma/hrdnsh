@@ -214,7 +214,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CACHES = {  
     'default': {
-        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'BACKEND': 'hrdnsh.utils.CustomFileCache',
         'LOCATION': os.path.join(BASE_DIR, 'cache'),
         'TIMEOUT': 3600,
         'OPTIONS': {
