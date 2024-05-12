@@ -19,7 +19,11 @@ from django.core.cache import cache
 from django.core.mail import get_connection
 from django.contrib import messages
 from django.core.files.storage import default_storage
+import smtplib
 
+from django.core.exceptions import ValidationError
+from django.core.mail.backends.smtp import EmailBackend
+from guardian.shortcuts import assign_perm, get_users_with_perms
 
 
 class SiteProfile(SaveAndImageOptimizationMixin, models.Model):    
@@ -97,11 +101,15 @@ class SiteProfile(SaveAndImageOptimizationMixin, models.Model):
     
     def __str__(self):
         return self.site.__str__()    
-
+    
+    class Meta:
+        permissions = [
+            ("can_access_all", "Can Access all objects"),
+        ]
 
 
 class SelectedTemplate(models.Model):
-    profile =  models.OneToOneField(SiteProfile, on_delete=models.CASCADE, related_name='selected_template')
+    profile =  models.OneToOneField(SiteProfile, primary_key=True, on_delete=models.CASCADE, related_name='selected_template')
     template = models.ForeignKey(
         'common.Template', 
         null=True, 
@@ -114,7 +122,13 @@ class SelectedTemplate(models.Model):
     def save(self, *args, **kwargs):           
         super().save(*args, **kwargs)   
         from hrdnsh.middleware import modify_site_cache_global
-        modify_site_cache_global()          
+        modify_site_cache_global()     
+        
+    class Meta:
+        permissions = [
+            ("can_access_all", "Can Access all objects"),
+        ]
+     
  
 
 
@@ -150,6 +164,13 @@ class Experience(models.Model):
     skills_marquee_direction = models.CharField(max_length=20, choices=MARQUEE_DIRECTION, default="left")    
     objects = models.Manager()
     on_site = CurrentSiteManager('site')
+    
+    
+    class Meta:
+        ordering = ['responsibility_or_designation', 'company_or_workplace']
+        permissions = [
+            ("can_access_all", "Can Access all objects"),
+        ]
 
     def __str__(self):
         return f"{self.responsibility_or_designation} at {self.company_or_workplace}"
@@ -157,10 +178,12 @@ class Experience(models.Model):
     def save(self, *args, **kwargs):   
         if not self.site: 
             self.site = get_current_site() 
-        super().save(*args, **kwargs)
+        super().save(*args, **kwargs)   
+        
         
         
     def get_skills_name_and_percent(self):
+        
         return {skill.name: skill.skill_percent for skill in self.skills_to_experience.all()}
     
     def get_skills_name_and_image(self):
@@ -177,11 +200,19 @@ class WhatDidThere(models.Model):
     """
     Represents specific items related to an experience.
     """
-    item = models.TextField()
     experience = models.ForeignKey(Experience, on_delete=models.CASCADE, related_name = "what_did")
+    item = models.TextField()
+    
 
     def __str__(self):
         return self.item
+    
+    class Meta:
+        ordering = ['item']
+        permissions = [
+            ("can_access_all", "Can Access all objects"),
+        ]
+
     
 class SkillsAndTools(models.Model):
     """
@@ -213,16 +244,15 @@ class SkillsAndTools(models.Model):
             # Delete the old image file using the default storage
             if default_storage.exists(old_image_path):
                 default_storage.delete(old_image_path)
+                
+    class Meta:
+        ordering = ['name', 'skill_percent']
+        permissions = [
+            ("can_access_all", "Can Access all objects"),
+        ]
+
     
-    # def save(self, *args, **kwargs):           
-    #     super().save(*args, **kwargs)        
-    #     if self.icon_image: 
-    #         icon_image = self.icon_image
-    #         ext = str(icon_image).split('.')[-1]        
-    #         if ext in ['png', 'jpg', 'jpeg']:
-    #             optimized_icon_image = optimize_image_for_web(icon_image.path, delete_original = True, width=80)  
-    #             self.icon_image = optimized_icon_image    
-    #             super().save(*args, **kwargs)  
+   
                 
 
 class KeyQualification(  
@@ -240,6 +270,13 @@ class KeyQualification(
     
     def __str__(self):
         return self.title
+    
+    
+    class Meta:
+        permissions = [
+            ("can_access_all", "Can Access all objects"),
+        ]
+
     
     
     
@@ -287,6 +324,13 @@ class Template(
                 self.template_zip.delete(save=False)                             
         super().save(*args, **kwargs)
         
+        
+    class Meta:
+        permissions = [
+            ("can_access_all", "Can Access all objects"),
+        ]
+
+        
     
   
         
@@ -321,10 +365,13 @@ class ExtraProfileImages(models.Model):
     def __str__(self):
         return f"File Key: {self.key_name}"
     
-import smtplib
+    class Meta:
+        permissions = [
+            ("can_access_all", "Can Access all objects"),
+        ]
 
-from django.core.exceptions import ValidationError
-from django.core.mail.backends.smtp import EmailBackend
+    
+
 
 class PersonalizedEmailSetting(models.Model):
     site = models.OneToOneField(Site, on_delete=models.CASCADE, related_name='personalized_setting')
@@ -337,6 +384,12 @@ class PersonalizedEmailSetting(models.Model):
     
     def __str__(self):
         return f"Email Settings For: {self.site.domain}"
+    
+    class Meta:
+        permissions = [
+            ("can_access_all", "Can Access all objects"),
+        ]
+
     
 
     def clean(self):

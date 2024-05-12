@@ -19,6 +19,8 @@ default_keys_for_extra_images = [
     'lets_talk',
     'portrait',
     'icon16',
+    
+    
     'icon32',
     'icon64',
     'icon128',
@@ -28,7 +30,8 @@ default_keys_for_extra_images = [
     '404_img',
     '500_img',
     'blog_single_top',
-    'education_block'  
+    'education_block',
+    'one_more'  
 ]
 
 def site_profile(request):
@@ -106,25 +109,9 @@ def site_profile(request):
         
     }
     
+    extra_images = get_extra_images(current_site_profile)
     
-    extra_images = current_site_profile.extra_images.all()
-    existing_keys = extra_images.values_list('key_name', flat=True)
-
-    # checking if new item added by default
-    all_default_keys_are_in_existing = all(item in existing_keys for item in default_keys_for_extra_images)
-    if not extra_images.exists() or not all_default_keys_are_in_existing:
-        objs_to_create = []
-        for key in default_keys_for_extra_images:
-            if key not in existing_keys:
-                objs_to_create.append(
-                    ExtraProfileImages(profile=current_site_profile, key_name = key)
-                )            
-        extra_images = ExtraProfileImages.objects.bulk_create(objs_to_create)        
-    
-    extra_images_dict = {}
-    for ex_image in extra_images:        
-        extra_images_dict[ex_image.key_name] = ex_image.image.url if ex_image.image else None
-        
+    extra_images_dict = get_extra_images_dict(extra_images)   
         
     data.update(
         {'extra_images' : extra_images_dict}
@@ -134,6 +121,33 @@ def site_profile(request):
 
     cache.set(f"site_profile{request.site.id}", data)
     return data
+
+def get_extra_images(current_site_profile):
+    extra_images = current_site_profile.extra_images.all()
+    existing_keys = extra_images.values_list('key_name', flat=True)
+
+    # checking if new item added by default
+    all_default_keys_are_in_existing = all(item in existing_keys for item in default_keys_for_extra_images)
+
+    if not extra_images.exists() or not all_default_keys_are_in_existing:
+        objs_to_create = []
+        for key in default_keys_for_extra_images:
+            if key not in existing_keys:
+                objs_to_create.append(
+                    ExtraProfileImages(profile=current_site_profile, key_name = key)
+                )            
+        extra_images = ExtraProfileImages.objects.bulk_create(objs_to_create) 
+        
+    return  extra_images   
+
+def get_extra_images_dict(extra_images):
+    extra_images_dict = {}
+    for ex_image in extra_images:        
+        extra_images_dict[ex_image.key_name] = ex_image.image.url if ex_image.image else None
+        
+    return extra_images_dict
+      
+    
 
 def common(request):
     

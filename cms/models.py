@@ -45,12 +45,12 @@ class View(models.Model):
     last_viewed = models.DateTimeField(auto_now=True)
 
 # Tag model
-class Tag(models.Model):
+class Tag(models.Model): 
     name = models.CharField(max_length=50)        
     site = models.ForeignKey(Site, on_delete=models.CASCADE, related_name='tags')
     view = GenericRelation(View)
     
-    objects = models.Manager()  
+    objects = models.Manager()   
     on_site = CurrentSiteManager('site')
     
     def increment_view_count(self):   
@@ -65,6 +65,11 @@ class Tag(models.Model):
     
     def get_tag_blogs_url(self):        
         return reverse('cms:blog_tag', args=[self.id]) 
+    
+    class Meta:
+        permissions = [
+            ("can_access_all", "Can Access all objects"),
+        ]
 
 
     
@@ -85,6 +90,10 @@ class Comment(
     
     class Meta:
         ordering = ['-created_at']
+        
+        permissions = [
+            ("can_access_all", "Can Access all objects"),
+        ]
         
     def get_delete_edit_url(self):
         return reverse('cms:edit_delete_comment', args=[int(self.id)])
@@ -109,29 +118,25 @@ class Comment(
         ).delete()
     
     
-        
-
-
-    
 
 
 # Blog model
-class Blog(
-    SiteAutorMixin, 
+class Blog(   
     TitleBodyMixin,
     SlugMixin, 
     TaggingMixin, 
     CommentMixin, 
-    ImageMixin, 
-    LikeViewCountMixin, 
+    ImageMixin,  
     DateTimeMixin, 
     CategoryMixin, 
     StatusMixin,
-    SaveAndImageOptimizationMixin, #if need to edit dave method look here
+    SaveAndImageOptimizationMixin, #if need to edit save method look here
     models.Model
     
-    ):    
+    ):   
+    site = models.ForeignKey(Site, on_delete=models.CASCADE, related_name='%(class)s_site') 
     summary = models.TextField(max_length=400)
+    footnote = models.TextField(max_length=400, null=True, blank=True)    
     view = GenericRelation(View)
     comments = GenericRelation(Comment)
     
@@ -143,6 +148,10 @@ class Blog(
     
     class Meta:
         ordering = ['-created_at']   
+
+        permissions = [
+            ("can_access_all", "Can Access all objects"),
+        ]
     
     
     def get_absolute_url(self):        

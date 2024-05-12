@@ -22,8 +22,10 @@ def build_sitemap(request):
 
 
 urlpatterns = [
+    path("__debug__/", include("debug_toolbar.urls")),
     path('sitemap.xml', build_sitemap, name='django.contrib.sitemaps.views.sitemap'),  
     path('backdoor/', admin.site.urls),  
+    
     path('summernote/', include('django_summernote.urls')), 
     path("select2/", include("django_select2.urls")), 
     path('', include('common.urls')),   
@@ -31,7 +33,10 @@ urlpatterns = [
     path('cms/', include('cms.urls')),
     path('contact/', include('contact.urls')),     
     path('projects/', include('project.urls')),         
-    path('services/', include('service.urls')),          
+    path('services/', include('service.urls')), 
+    path('api/v1/', include('hdapi.urls')),    
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),      
+             
         
 ]
 

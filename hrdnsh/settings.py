@@ -1,7 +1,7 @@
 from pathlib import Path
 import environ
 import os
-
+from datetime import timedelta
 # from hrdnsh.conf import LazyCurrentTemplate
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -37,9 +37,13 @@ DYNAMIC_HOSTS_DEFAULT_HOSTS=env("HRDNSH_ALLOWED_HOST").split(',')
 DYNAMIC_HOST_ALLOW_SITES=False
 DYNAMIC_HOST_RESOLVER_FUNC="common.resolver.check_host"
 
+# CORS_ALLOWED_ORIGINS = env("HRDNSH_CORS_ALLOWED_ORIGINS").split(',')
+
+
 SITE_ID = 1
 
 INSTALLED_APPS = [
+    "debug_toolbar",
     'django.contrib.admin',
     'dynamic_host',
     'django_select2',
@@ -51,25 +55,149 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'django.contrib.sitemaps',    
-    
+    'rest_framework',
+    # 'rest_framework.authtoken',
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
+    'drf_yasg',
     'account',
     'cms',
     'common',
     'contact',
- 
+    'hdapi',
     'django_recaptcha',  
     'project',
-    'service'
+    'service',
+    # "corsheaders",
+    'guardian',
     
 ]
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        # 'rest_framework_simplejwt.authentication.JWTAuthentication',
+    
+    ),
+    # 'DEFAULT_PARSER_CLASSES': [
+    #     'rest_framework.parsers.JSONParser',
+    #     'rest_framework.parsers.FormParser',  
+    #     'rest_framework.parsers.MultiPartParser',  
+        
+    # ]
+}
+
+
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "UPDATE_LAST_LOGIN": False,
+    
+    'ALGORITHM': 'HS256',
+   
+    "VERIFYING_KEY": "",
+    "AUDIENCE": None,
+    "ISSUER": None,
+    "JSON_ENCODER": None,
+    "JWK_URL": None,
+    "LEEWAY": 0,
+
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
+    "USER_ID_FIELD": "id",
+    "USER_ID_CLAIM": "user_id",
+    "USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication.default_user_authentication_rule",
+
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+    "TOKEN_TYPE_CLAIM": "token_type",
+    "TOKEN_USER_CLASS": "rest_framework_simplejwt.models.TokenUser",
+
+    "JTI_CLAIM": "jti",
+
+    "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
+    "SLIDING_TOKEN_LIFETIME": timedelta(minutes=5),
+    "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
+
+    "TOKEN_OBTAIN_SERIALIZER": "hdapi.serializers.HdTokenObtainPairSerializer",
+    "TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSerializer",
+    "TOKEN_VERIFY_SERIALIZER": "rest_framework_simplejwt.serializers.TokenVerifySerializer",
+    "TOKEN_BLACKLIST_SERIALIZER": "rest_framework_simplejwt.serializers.TokenBlacklistSerializer",
+    "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
+    "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
+}
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Token': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        },
+        'Basic': {
+            'type': 'basic',
+            'description': 'Basic HTTP Authentication'
+        },
+        'Bearer': {
+                'type': 'apiKey',
+                'name': 'Authorization',
+                'in': 'header'
+        }
+    },
+    'PERSIST_AUTH': True,
+    'REFETCH_SCHEMA_WITH_AUTH': True,
+    'CODEGEN_URL': 'hdapi:schema-json',
+    'USE_SESSION_AUTH': False,  
+    'APIS_SORTER': 'alpha',     
+    'OPERATIONS_SORTER': 'alpha',
+    'TAGS_SORTER': 'alpha',
+    'DOC_EXPANSION': 'list',    
+    'DEFAULT_MODEL_RENDERING': '',    
+    'DEFAULT_MODEL_SCHEMA': '',
+    'SPEC_URL' : 'hdapi:schema-json',   
+    'VALIDATOR_URL': None,
+    'DISPLAY_OPERATION_ID': True,
+    'JSON_EDITOR': True,
+    'SHOW_EXTENSIONS': True,
+    'DEFAULT_EXTENSIONS': [
+        'OpenAPIClientCodegen'
+    ],
+    # 'CONFIG_URL': 'https://cdn.jsdelivr.net/npm/swagger-ui-dist@4.0.0/swagger-ui.css',
+    
+}
+
+REDOC_SETTINGS = {
+    'CODEGEN_URL': 'hdapi:schema-json',
+    'SPEC_URL': 'hdapi:schema-json',
+    'USE_SESSION_AUTH': False,  # Disable Django login button
+    'NO_AUTO_AUTH': True,  
+    # 'codegen': {
+    #     'enabled': True,
+    #     'languages': ['python', 'java', 'php', 'javascript'],  # Add more languages as needed
+    # },
+}
+
 TEMPLATE_TAGS = ['django_summernote.templatetags.summernote']
 AUTH_USER_MODEL = 'account.User'
-AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    'guardian.backends.ObjectPermissionBackend'
+    ]
 
 MIDDLEWARE = [ 
     
     'dynamic_host.middleware.AllowedHostMiddleWare', 
     'hrdnsh.middleware.HttpsRedirectMiddleware',   
+    "corsheaders.middleware.CorsMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     'django.middleware.security.SecurityMiddleware',        
     "whitenoise.middleware.WhiteNoiseMiddleware",
     # 'django.contrib.sites.middleware.CurrentSiteMiddleware',     
@@ -85,6 +213,14 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     
     
+]
+
+INTERNAL_IPS = [
+  
+    "127.0.0.1",
+    "192.168.0.105",
+    
+  
 ]
 
 

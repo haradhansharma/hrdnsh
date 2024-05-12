@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.sites.managers import CurrentSiteManager
 from django.urls import reverse
 from cms.managers import PublishManager
-from cms.mixins import CategoryMixin, DateTimeMixin, ImageMixin, SaveAndImageOptimizationMixin, LikeViewCountMixin, SiteAutorMixin, SlugMixin, StatusMixin, TitleBodyMixin
+from cms.mixins import CategoryMixin, DateTimeMixin, ImageMixin, SaveAndImageOptimizationMixin, LikeViewCountMixin, SiteAutorMixin, SiteEmailMixin, SlugMixin, StatusMixin, TitleBodyMixin
 from cms.models import Like, View
 from common.models import SkillsAndTools
 from django.core.validators import FileExtensionValidator
@@ -14,7 +14,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelatio
 
 
 class Service(
-    SiteAutorMixin, 
+    SiteEmailMixin, 
     TitleBodyMixin,
     SlugMixin,   
     ImageMixin, 
@@ -47,4 +47,10 @@ class Service(
     
     def __str__(self):
         return self.title
+    
+    
+    class Meta:
+        permissions = [
+            ("can_access_all", "Can Access all objects"),
+        ]
     

@@ -1,0 +1,214 @@
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework import serializers, status
+from django.contrib.sites.models import Site
+from cms.models import Blog, Category, Comment, Tag, View
+from django.contrib.contenttypes.models import ContentType
+from common.models import (
+    Experience,
+    ExtraProfileImages,
+    KeyQualification,
+    PersonalizedEmailSetting, 
+    SelectedTemplate, 
+    SiteProfile,
+    SkillsAndTools,
+    WhatDidThere
+    )
+
+class HdTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)   
+   
+        token['email'] = user.email
+   
+
+        return token
+    
+    
+class TokenObtainPairResponseSerializer(serializers.Serializer):
+    access = serializers.CharField()
+    refresh = serializers.CharField()
+
+    def create(self, validated_data):
+        raise NotImplementedError()
+
+    def update(self, instance, validated_data):
+        raise NotImplementedError()
+    
+class TokenRefreshResponseSerializer(serializers.Serializer):
+    access = serializers.CharField()
+
+    def create(self, validated_data):
+        raise NotImplementedError()
+
+    def update(self, instance, validated_data):
+        raise NotImplementedError()
+    
+class TokenVerifyResponseSerializer(serializers.Serializer):
+    def create(self, validated_data):
+        raise NotImplementedError()
+
+    def update(self, instance, validated_data):
+        raise NotImplementedError()
+    
+class TokenBlacklistResponseSerializer(serializers.Serializer):
+    def create(self, validated_data):
+        raise NotImplementedError()
+    def update(self, instance, validated_data):
+        raise NotImplementedError()    
+    
+'''
+===================
+'''
+class ViewSerializer(serializers.ModelSerializer):        
+    class Meta:
+        model = View
+        fields = ['count', 'last_viewed']
+class ContentTypeCommentSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(required=True)
+    
+    def create(self, validated_data):
+        content_type_id = self.context['content_type_id']
+        object_id = self.context['object_id']        
+        return Comment.objects.create(content_type_id=content_type_id, object_id=object_id, **validated_data)
+    
+    class Meta:
+        model = Comment
+        fields = ['id', 'body', 'site', 'email'] 
+        
+        
+class CmsBlogSerializer(serializers.ModelSerializer):
+    view = ViewSerializer(many=True, read_only=True)
+    comments = ContentTypeCommentSerializer(many=True, read_only=True)
+    content_type_id = serializers.IntegerField(source='cached_content_type_id', read_only=True)
+    slug = serializers.SlugField(read_only=True)
+    absolute_url = serializers.SerializerMethodField()
+    class Meta:
+        model = Blog    
+        exclude = ()
+        read_only_fields = ('site',)
+        
+    def get_cached_content_type_id(self, blog: Blog):
+        if hasattr(blog, 'cached_content_type_id'):
+            return blog.cached_content_type_id
+
+        content_type = ContentType.objects.get_for_model(blog)
+        blog.cached_content_type_id = content_type.id
+        return content_type.id
+    
+    def get_absolute_url(self, blog: Blog):
+        return f'https://{blog.site.domain}{blog.get_absolute_url()}' 
+
+
+        
+class CmsCategorySerializer(serializers.ModelSerializer):
+    view_blogs_on_site = serializers.SerializerMethodField(method_name='process_abs_url', help_text="Will return url to view blogs of this category on the site!")
+    view_projects_on_site = serializers.SerializerMethodField( help_text="Will return url to view projects of this category on the site!")
+    slug = serializers.SlugField(read_only=True)
+    class Meta:
+        model = Category
+        fields = ['id', 'slug', 'title', 'body', 'view_blogs_on_site', 'view_projects_on_site'] 
+        
+    def process_abs_url(self, category: Category):
+        return f'https://{category.site.domain}{category.get_absolute_url()}'
+    
+    def get_view_projects_on_site(self, category: Category):
+        return f'https://{category.site.domain}{category.get_projectcat_absolute_url()}'
+        
+        
+    def create(self, validated_data):      
+        site_id = self.context['site_id']        
+        return Category.objects.create(site_id=site_id, **validated_data) 
+
+class ContentTypeSerializer(serializers.ModelSerializer):        
+    class Meta:
+        model = ContentType
+        fields = '__all__'   
+
+
+     
+
+class CmsTagSerializer(serializers.ModelSerializer):
+    get_tag_blogs_url = serializers.SerializerMethodField(method_name='process_get_tag_blogs_url', help_text="Will return url to view blogs of this tag on the site!")
+    view = ViewSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = Tag
+        fields = ['id', 'name', 'get_tag_blogs_url', 'view'] 
+        
+        
+    def process_get_tag_blogs_url(self, tag: Tag):
+        return f'https://{tag.site.domain}{tag.get_tag_blogs_url()}'    
+ 
+        
+    def create(self, validated_data):      
+        site_id = self.context['site_id']        
+        return Tag.objects.create(site_id=site_id, **validated_data) 
+ 
+class PersonalizedEmailSettingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PersonalizedEmailSetting
+        fields = '__all__'   
+    
+class ExtraProfileImagesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExtraProfileImages
+        fields = '__all__'   
+        
+        
+class KeyQualificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = KeyQualification
+        fields = '__all__'   
+        
+        
+class SkillsAndToolsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SkillsAndTools
+        fields = '__all__'   
+        
+class WhatDidSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WhatDidThere
+        fields = '__all__'   
+
+
+class AllExperienceSerializer(serializers.ModelSerializer):
+    skills_to_site = SkillsAndToolsSerializer(many=True, read_only=True)
+    what_did = WhatDidSerializer(many=True, read_only=True)
+    class Meta:
+        model = Experience
+        fields = '__all__'      
+        
+
+class SiteExperienceSerializer(serializers.ModelSerializer):
+    skills_to_site = SkillsAndToolsSerializer(many=True, required=False)
+    what_did = WhatDidSerializer(many=True, required=False)
+    class Meta:
+        model = Experience
+        fields = '__all__'     
+        
+        
+class SelectTemplateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SelectedTemplate
+        fields = '__all__'
+        
+class SiteProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SiteProfile
+        fields = '__all__' 
+
+class SiteSerializer(serializers.ModelSerializer):  
+    class Meta:
+        model = Site
+        fields = '__all__'
+        
+
+        
+        
+    
+    
+   

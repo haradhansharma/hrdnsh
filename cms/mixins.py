@@ -57,7 +57,7 @@ class DateTimeMixin(models.Model):
         abstract = True   
         
 class StatusMixin(models.Model):
-    status = models.CharField(max_length=10, choices=(('public', 'Public'), ('unpublish', 'Unpublish'), ('draft', 'Draft')), default="draft")
+    status = models.CharField(max_length=10, choices=(('public', 'Public'), ('unpublish', 'Unpublish'), ('draft', 'Draft')), default="draft", help_text='Default is "draft"')
     
     class Meta:
         abstract = True 
@@ -90,7 +90,7 @@ class SiteEmailMixin(models.Model):
         if issubclass(self.__class__, SiteAutorMixin):
             raise ImproperlyConfigured("Any one can be used from SiteEmailMixin and SiteAutorMixin")      
     site = models.ForeignKey(Site, on_delete=models.CASCADE, related_name='%(class)s_site')
-    email = models.EmailField()    
+    email = models.EmailField(null=True, blank=True)    
 
     class Meta:
         abstract = True       
@@ -108,7 +108,7 @@ class ImageMixin(models.Model):
         abstract = True   
         
         
-class SaveSlugMixin:
+class SaveSlugMixin(models.Model):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not hasattr(self, 'title'):
@@ -121,13 +121,16 @@ class SaveSlugMixin:
         if hasattr(self, 'slug') and not self.slug:
             self.slug = generate_unique_slug(self, self.title)
         super().save(*args, **kwargs)
+        
+    class Meta:
+        abstract = True  
     
             
 
-class SaveAndImageOptimizationMixin:  
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)       
+class SaveAndImageOptimizationMixin(models.Model):     
         
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)        
         
         if not hasattr(self, 'image_fields_to_optimize'):
             raise ImproperlyConfigured("Please define image_fields_to_optimize property list")
@@ -145,39 +148,37 @@ class SaveAndImageOptimizationMixin:
             old_instance = None       
                 
         if hasattr(self, 'title') and hasattr(self, 'slug') and not self.slug:
-            self.slug = generate_unique_slug(self, self.title)
+            self.slug = generate_unique_slug(self, self.title)           
             
-            
-        super().save(*args, **kwargs)       # we need to save image to go to the next operation
-     
+        super().save(*args, **kwargs)  
         
-        # main_image = getattr(self, 'main_image', None)         
+        uf = []         
+      
         if hasattr(self, 'main_image') :
             new_image_name = slugify(f'{self.site.domain}--{self.__class__.__name__}--thumb--{self.pk}')  
             if is_new_instance:                     
                 optimized_thumbnail = optimize_image_for_web(self.main_image.path, delete_original=False, width=450, new_name=new_image_name)          
-                self.thumbnail_image = optimized_thumbnail          
-                super().save(*args, **kwargs)  
+                self.thumbnail_image = optimized_thumbnail  
+                uf.append('thumbnail_image')
+                
+               
+
             
             if old_instance:
                 if self.main_image != old_instance.main_image:
                     optimized_thumbnail = optimize_image_for_web(self.main_image.path, delete_original=False, width=450, new_name=new_image_name)  
                     self.thumbnail_image = optimized_thumbnail                  
-                    old_instance.thumbnail_image.delete(save=False)             
-                    super().save(*args, **kwargs)          
+                    old_instance.thumbnail_image.delete(save=False)  
+                    uf.append('thumbnail_image')           
+   
         
         image_fields = getattr(self, 'image_fields_to_optimize', [])                
         
   
         changed_fields = self._process_image_fields(old_instance, image_fields)
         
-        # Save the instance again if any image fields were optimized
-        if changed_fields:
-            super().save(*args, **kwargs)
         
-            
-            
-            
+        super().save(update_fields=changed_fields+uf)    
     
     
         
@@ -189,7 +190,7 @@ class SaveAndImageOptimizationMixin:
                 new_image_field = getattr(self, field_name)
                 if old_image_field != new_image_field:                
                     if new_image_field:  
-                        print('189 deleting') 
+       
                         old_image_field.delete(save=False)                                         
                         optimized_webp = self._optimize_image(field_name, new_image_field)                                 
                         setattr(self, field_name, optimized_webp) 
@@ -207,6 +208,10 @@ class SaveAndImageOptimizationMixin:
         optimized_webp = optimize_image_for_web(image_field.path, delete_original=True, new_name=new_image_name)    
         
         return  optimized_webp
+    
+    
+    class Meta:
+        abstract = True   
             
         
 def generate_unique_slug(cls, title):        
@@ -221,7 +226,7 @@ def generate_unique_slug(cls, title):
             
 # Mixin for tagging
 class TaggingMixin(models.Model):
-    tags = models.ManyToManyField('cms.Tag', blank=True, related_name='%(class)s_related')
+    tags = models.ManyToManyField('cms.Tag', blank=True, related_name='%(class)s_related', help_text="Must be picked from Tag of the site (cms_site_tag_list)")
 
     class Meta:
         abstract = True
@@ -229,7 +234,7 @@ class TaggingMixin(models.Model):
         
         
 class CategoryMixin(models.Model):
-    category = models.ForeignKey('cms.Category', on_delete=models.SET_NULL, null=True, blank=True, related_name='%(class)s_category')  
+    category = models.ForeignKey('cms.Category', on_delete=models.SET_NULL, null=True, blank=True, related_name='%(class)s_category', help_text="Must be picked from Category of the site (cms_site_category_list)")  
     
     class Meta:
         abstract = True
