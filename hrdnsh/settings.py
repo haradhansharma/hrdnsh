@@ -261,7 +261,8 @@ TEMPLATES = [
                 'common.context_processor.common'
             ],
             'loaders': [
-                'common.loader.CustomLoader'              
+                'common.loader.CustomLoader',
+                'django.template.loaders.app_directories.Loader'             
             ],
             
         },
