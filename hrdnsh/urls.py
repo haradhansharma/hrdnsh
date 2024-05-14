@@ -35,7 +35,7 @@ urlpatterns = [
     path('projects/', include('project.urls')),         
     path('services/', include('service.urls')), 
     path('api/v1/', include('hdapi.urls')),    
-    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),      
+    # path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),      
              
         
 ]
