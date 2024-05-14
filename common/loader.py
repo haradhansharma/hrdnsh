@@ -16,7 +16,8 @@ class CustomLoader(Loader):
 @functools.lru_cache
 def get_app_template_dirs(dirname):    
     template_dirs = [  
-        os.path.join(settings.BASE_DIR, settings.TEMP_DIR, dirname)          
+        os.path.join(settings.BASE_DIR, settings.TEMP_DIR, dirname),          
+                 
     ]
     
     return tuple(template_dirs)

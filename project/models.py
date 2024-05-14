@@ -49,6 +49,7 @@ class Project(
         return self.title
     
     class Meta:
+        ordering = ['-created_at', 'title']
         permissions = [
             ("can_access_all", "Can Access all objects"),
         ]
@@ -60,6 +61,12 @@ class ProjectRequirement(models.Model):
     def __str__(self):
         return f'ID {self.id} of {self.project.title}'
     
+    class Meta:
+        ordering = ['item']
+        permissions = [
+            ("can_access_all", "Can Access all objects"),
+        ]
+    
 class ProjectScoope(DateTimeMixin, models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="project_scoopes")
     step = models.PositiveIntegerField(help_text='Integer accepted')
@@ -69,6 +76,12 @@ class ProjectScoope(DateTimeMixin, models.Model):
     def __str__(self):
         return f'Step {self.step} of {self.project.title}'
     
+    class Meta:
+        ordering = ['step']
+        permissions = [
+            ("can_access_all", "Can Access all objects"),
+        ]
+    
 class ScoopVisualization(
     ImageMixin, 
     SaveAndImageOptimizationMixin, #if need to edit save method look here
@@ -77,6 +90,14 @@ class ScoopVisualization(
     # site = models.ForeignKey(Site, on_delete=models.CASCADE, related_name='%(class)s_site')
     project_scoope = models.ForeignKey(ProjectScoope, on_delete=models.CASCADE, related_name="scoope_visualization")    
     image_fields_to_optimize = ['main_image']
+    
+    class Meta:
+        ordering = ['pk']
+        permissions = [
+            ("can_access_all", "Can Access all objects"),
+        ]
+    
+    
     
     
 

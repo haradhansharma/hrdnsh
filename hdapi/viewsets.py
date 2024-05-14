@@ -16,6 +16,21 @@ class NonListModelViewSet(
 ):     
     pass   
 
+class RetriveUpdateDeleteModelViewSet(
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,  
+    GenericViewSet
+):     
+    pass  
+
+class RetriveUpdateModelViewSet(
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    GenericViewSet
+):     
+    pass  
+
 
 
 

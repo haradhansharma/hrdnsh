@@ -25,6 +25,10 @@ class ServiceHomeView(ListView):
     
     def get_queryset(self):      
         queryset = self.model.status_objects.published_on_site(self.request).order_by('-created_at')
+        # Check if the 'slug' parameter exists in the URL kwargs
+        if 'slug' in self.kwargs:
+            # Filter the queryset based on the category slug
+            queryset = queryset.filter(category__slug=self.kwargs['slug'])
         return queryset
 
     def get_context_data(self, **kwargs):

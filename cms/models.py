@@ -57,6 +57,9 @@ class Tag(models.Model):
         view, create = self.view.get_or_create(content_type = self, object_id=self.id)
         view.count += 1
         view.save()
+        
+
+        
   
    
 
@@ -67,6 +70,7 @@ class Tag(models.Model):
         return reverse('cms:blog_tag', args=[self.id]) 
     
     class Meta:
+        ordering = ['name']  
         permissions = [
             ("can_access_all", "Can Access all objects"),
         ]
@@ -222,4 +226,13 @@ class Category(
     
     def get_projectcat_absolute_url(self):        
         return reverse('project:project_category', args=[self.slug])
+    
+    def get_servicecat_absolute_url(self):        
+        return reverse('service:service_category', args=[self.slug])
+    
+    class Meta:
+        ordering = ['title']        
+        permissions = [
+            ("can_access_all", "Can Access all objects"),
+        ]
     

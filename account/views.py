@@ -1,5 +1,6 @@
+from django.http import Http404, HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import render
-
+from django.http import HttpResponseForbidden
 # Create your views here.
 from django.contrib.auth.views import (
     LoginView,
@@ -13,7 +14,7 @@ from django.contrib.auth.views import (
  
     
 )
-
+from django.contrib.auth import views as auth_views
 from account.forms import (
     PercomUserCreationForm as UserCreationForm,
     PercomUserChangeForm as UserChangeForm
@@ -23,6 +24,15 @@ from django.views import generic
 
 class UserLoginView(LoginView):
     template_name = 'account/login.html'
+        
+    def form_valid(self, form):
+        user = form.get_user()
+        if user:
+            if user.is_api_user:
+                raise HttpResponseForbidden('API user not allowed in web interface!')
+        return super().form_valid(form)        
+        
+
     
 class UserLogoutView(LogoutView):
     template_name = 'account/logged_out.html'

@@ -11,6 +11,7 @@ class PercomUserManager(BaseUserManager):
         """
         Create and save a User with the given email and password.
         """
+        print('sssssssssssss')
         if not email:
             raise ValueError(_('The Email must be set'))
         email = self.normalize_email(email)
@@ -39,6 +40,12 @@ class User(AbstractUser):
     """
     username = None
     email = models.EmailField(_('email address'), unique=True)
+    is_api_user = models.BooleanField(default=False)
+    
+    @property
+    def associated_site_id(self):
+        site_id = self.associated_profile.site.id if self.associated_profile else 0
+        return site_id
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []

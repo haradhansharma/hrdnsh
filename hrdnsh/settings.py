@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     # 'rest_framework.authtoken',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
+    'django_filters',
     'drf_yasg',
     'account',
     'cms',
@@ -79,19 +80,24 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
+        'hdapi.permissions.IsAssociatedSiteOwnerOrProfileOwner',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-        # 'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     
     ),
-    # 'DEFAULT_PARSER_CLASSES': [
-    #     'rest_framework.parsers.JSONParser',
-    #     'rest_framework.parsers.FormParser',  
-    #     'rest_framework.parsers.MultiPartParser',  
-        
-    # ]
+    'DEFAULT_PARSER_CLASSES': [ 
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.MultiPartParser',
+        'rest_framework.parsers.FormParser'
+                 
+    ],
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+      
+    ),
 }
 
 
@@ -174,11 +180,13 @@ SWAGGER_SETTINGS = {
     
 }
 
+
 REDOC_SETTINGS = {
     'CODEGEN_URL': 'hdapi:schema-json',
     'SPEC_URL': 'hdapi:schema-json',
     'USE_SESSION_AUTH': False,  # Disable Django login button
     'NO_AUTO_AUTH': True,  
+    'LAZY_RENDERING': True,
     # 'codegen': {
     #     'enabled': True,
     #     'languages': ['python', 'java', 'php', 'javascript'],  # Add more languages as needed
@@ -261,8 +269,9 @@ TEMPLATES = [
                 'common.context_processor.common'
             ],
             'loaders': [
-                'common.loader.CustomLoader',
-                'django.template.loaders.app_directories.Loader'             
+                'common.loader.CustomLoader',                 
+                'django.template.loaders.app_directories.Loader', 
+                # 'django.template.loaders.filesystem.Loader',              
             ],
             
         },

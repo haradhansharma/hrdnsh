@@ -27,7 +27,8 @@ from guardian.shortcuts import assign_perm, get_users_with_perms
 
 
 class SiteProfile(SaveAndImageOptimizationMixin, models.Model):    
-    site = models.OneToOneField(Site, primary_key=True, verbose_name='Site Profile', on_delete=models.CASCADE, related_name = "profile")   
+    site = models.OneToOneField(Site, primary_key=True, verbose_name='PK', on_delete=models.CASCADE, related_name = "profile", help_text='Primary Key of the Profile')   
+    associate_user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='associated_profile' )
     meta_title = models.CharField(max_length=60, null=True, blank=True)
     meta_description = models.TextField(max_length=500, null=True, blank=True)
     
@@ -109,7 +110,7 @@ class SiteProfile(SaveAndImageOptimizationMixin, models.Model):
 
 
 class SelectedTemplate(models.Model):
-    profile =  models.OneToOneField(SiteProfile, primary_key=True, on_delete=models.CASCADE, related_name='selected_template')
+    profile =  models.OneToOneField(SiteProfile, primary_key=True, on_delete=models.CASCADE, related_name='selected_template', verbose_name='PK', help_text="Primary Key of the Selected Template")
     template = models.ForeignKey(
         'common.Template', 
         null=True, 
@@ -273,12 +274,10 @@ class KeyQualification(
     
     
     class Meta:
+        ordering = ['-from_date','title']
         permissions = [
             ("can_access_all", "Can Access all objects"),
         ]
-
-    
-    
     
 
 
@@ -374,13 +373,13 @@ class ExtraProfileImages(models.Model):
 
 
 class PersonalizedEmailSetting(models.Model):
-    site = models.OneToOneField(Site, on_delete=models.CASCADE, related_name='personalized_setting')
-    email = models.EmailField('Sender Email', help_text="If provided Acknowledgement of contact form will be sent from this email and Contact Notification will receive here.")
-    host = models.CharField(max_length=250, help_text='Email will sent using this host')
-    port = models.IntegerField('SMTP port', help_text="SMTP port from your email configuration settings to sent email")
-    host_user = models.CharField(help_text="Email user", max_length=150)
-    host_password = models.CharField(max_length=250, help_text="Email Password")
-    acknowledge_message = models.TextField(max_length=500, help_text="Do not include Addrssing Or Email Signature. Just Write After Dear Client and before Best Regards")
+    site = models.OneToOneField(Site, primary_key=True, on_delete=models.CASCADE, related_name='personalized_setting')
+    email = models.EmailField('Sender Email', null=True, blank=True, help_text="If provided Acknowledgement of contact form will be sent from this email and Contact Notification will receive here.")
+    host = models.CharField(max_length=250, null=True, blank=True, help_text='Email will sent using this host')
+    port = models.IntegerField('SMTP port', null=True, blank=True, help_text="SMTP port from your email configuration settings to sent email")
+    host_user = models.CharField(help_text="Email user", null=True, blank=True, max_length=150)
+    host_password = models.CharField(max_length=250, null=True, blank=True, help_text="Email Password")
+    acknowledge_message = models.TextField(max_length=500, null=True, blank=True, help_text="Do not include Addrssing Or Email Signature. Just Write After Dear Client and before Best Regards")
     
     def __str__(self):
         return f"Email Settings For: {self.site.domain}"

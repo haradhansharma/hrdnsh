@@ -11,21 +11,20 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.utils.text import slugify
 from common.utils import optimize_image_for_web
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
-
+from django.contrib.sites.models import Site
 
 class Service(
-    SiteEmailMixin, 
     TitleBodyMixin,
     SlugMixin,   
     ImageMixin, 
-    LikeViewCountMixin, 
     DateTimeMixin,  
     CategoryMixin, 
     StatusMixin,
     SaveAndImageOptimizationMixin, #if need to edit save method look here
     models.Model,
     
-    ):    
+    ): 
+    site = models.ForeignKey(Site, on_delete=models.CASCADE, related_name='%(class)s_site')
     summary = models.TextField(max_length=400)
     skills = models.ManyToManyField(SkillsAndTools, related_name='service_skills')  
     

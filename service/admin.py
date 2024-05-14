@@ -27,7 +27,6 @@ class ServiceAdmin(SummernoteModelAdmin):
         "skills",
         "category",
         "site",
-        "author",
         "status",
         
         

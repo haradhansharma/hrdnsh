@@ -40,8 +40,7 @@ class ProjectAdmin(admin.ModelAdmin):
         "main_image",
         "summary",     
         "categories", 
-        "site",            
-        "author", 
+        "site",   
         "status"   
         
         ]

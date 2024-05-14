@@ -4,6 +4,7 @@ from rest_framework import serializers, status
 from rest_framework import generics, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from account.models import User
 from cms.models import Blog, Category, Comment, Tag
 
 from django.shortcuts import get_object_or_404
@@ -20,11 +21,14 @@ from rest_framework.response import Response
 
 from rest_framework.exceptions import MethodNotAllowed
 
-from rest_framework.parsers import MultiPartParser, FormParser, FileUploadParser
+from rest_framework.parsers import MultiPartParser, JSONParser, FileUploadParser, FormParser
 
 from rest_framework.permissions import DjangoObjectPermissions
 
 from drf_yasg import openapi
+
+from django_filters.rest_framework import DjangoFilterBackend   
+from rest_framework.filters import SearchFilter, OrderingFilter
 
 from rest_framework_simplejwt.views import (
     TokenBlacklistView,
@@ -34,20 +38,36 @@ from rest_framework_simplejwt.views import (
 )
 
 from common.context_processor import get_extra_images
-from common.models import Experience, ExtraProfileImages, KeyQualification, PersonalizedEmailSetting, SelectedTemplate, SiteProfile, SkillsAndTools, WhatDidThere
+from common.models import (
+    Experience, 
+    ExtraProfileImages, 
+    KeyQualification, 
+    PersonalizedEmailSetting, 
+    SelectedTemplate, 
+    SiteProfile, 
+    SkillsAndTools, 
+    WhatDidThere
+    )
+from hdapi.filters import BlogFilter
 from hdapi.pagination import Pagination30
-from hdapi.schema import schema_for_create
-from hdapi.serializers import (
-    AllExperienceSerializer,
+from hdapi.permissions import IsAssociatedSiteOwnerOrProfileOwner
+from hdapi.schema import schema_for_create, schema_for_destroy, schema_for_retrieve, schema_for_update
+from hdapi.serializers import ( 
     CmsBlogSerializer,
     CmsCategorySerializer,
     CmsTagSerializer,
     ContentTypeCommentSerializer,
     ContentTypeSerializer,
     ExtraProfileImagesSerializer,
+    GroupSerializer,
     KeyQualificationSerializer,
     PersonalizedEmailSettingSerializer,
+    ProjectRequirementSerializer,
+    ProjectScoopeSerializer,
+    ProjectSerializer,
+    ScoopVisualizationSerializer,
     SelectTemplateSerializer,
+    ServiceSerializer,
     SiteExperienceSerializer,
     SiteProfileSerializer,
     SiteSerializer,
@@ -56,17 +76,26 @@ from hdapi.serializers import (
     TokenObtainPairResponseSerializer, 
     TokenRefreshResponseSerializer, 
     TokenVerifyResponseSerializer,
+    UserSerializer,
     WhatDidSerializer
 )
-from hdapi.viewsets import NonListModelViewSet
-from django.contrib.contenttypes.models import ContentType 
+from hdapi.viewsets import(
+    NonListModelViewSet, 
+    RetriveUpdateDeleteModelViewSet,
+    RetriveUpdateModelViewSet
+    )
+from django.contrib.contenttypes.models import ContentType
 
+from project.models import Project, ProjectRequirement, ProjectScoope, ScoopVisualization
+from service.models import Service 
+from django.contrib.auth.models import Group
 
 class DecoratedTokenObtainPairView(TokenObtainPairView):
     @swagger_auto_schema(
         responses={
             status.HTTP_200_OK: TokenObtainPairResponseSerializer,
-        }
+        },
+        security=[{"Basic": []}] 
     )
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
@@ -76,7 +105,8 @@ class DecoratedTokenRefreshView(TokenRefreshView):
     @swagger_auto_schema(
         responses={
             status.HTTP_200_OK: TokenRefreshResponseSerializer,
-        }
+        },
+        security=[{"Bearer": []}] 
     )
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
@@ -86,93 +116,209 @@ class DecoratedTokenVerifyView(TokenVerifyView):
     @swagger_auto_schema(
         responses={
             status.HTTP_200_OK: TokenVerifyResponseSerializer,
-        }
+        },
+        security=[{"Bearer": []}] 
     )
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
     
 class DecoratedTokenBlacklistView(TokenBlacklistView):
+    permission_classes = [permissions.IsAdminUser]  
+
     @swagger_auto_schema(
         responses={
             status.HTTP_200_OK: TokenBlacklistResponseSerializer,
-        }
+        },
+        security=[{"Bearer": []}] 
     )
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
     
-    
+class UserViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows users to be viewed or edited.
+    """
+    queryset = User.objects.all().order_by('-date_joined')
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAdminUser]
 
-class SiteViewSet(NonListModelViewSet):
-    queryset = Site.objects.select_related('profile').select_related('profile__selected_template').all()
-    serializer_class = SiteSerializer
-    permission_classes = [permissions.IsAuthenticated]  
-    
+
+class GroupViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows groups to be viewed or edited.
+    """
+    queryset = Group.objects.all().order_by('name')
+    serializer_class = GroupSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+class SiteViewSet(viewsets.ModelViewSet):
+    queryset = Site.objects.select_related(
+        'profile').select_related(
+            'profile__selected_template').select_related(
+                'personalized_setting').all()
+    serializer_class = SiteSerializer    
+    permission_classes = [permissions.IsAdminUser]
     
     @schema_for_create(serializer_class=serializer_class)
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
     
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)  
+    
+    @schema_for_update(serializer_class=serializer_class)
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)   
+    
+    @schema_for_update(serializer_class=serializer_class)
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs) 
+    
+    @schema_for_destroy(serializer_class=serializer_class)
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+    
+    def perform_create(self, serializer):
+        site = serializer.save()
+        profile = SiteProfile.objects.create(site=site)
+        SelectedTemplate.objects.create(profile=profile)
+        PersonalizedEmailSetting.objects.create(site=site)
+    
     
 
-class SiteProfileViewSet(NonListModelViewSet):
-    serializer_class = SiteProfileSerializer
-    parser_classes = [MultiPartParser, FormParser, FileUploadParser]
-    permission_classes = [permissions.IsAuthenticated]  
+class SiteProfileViewSet(RetriveUpdateModelViewSet):
+    serializer_class = SiteProfileSerializer  
+    parser_classes = [MultiPartParser, JSONParser] # Must update commit of drf-yasg consumes utils.py >> get_consumes
     
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        site_id = self.kwargs.get('pk')   
-        if site_id:
-            context['site'] = int(site_id)
-        return context
-
     def get_queryset(self):
         site_id = self.kwargs.get('pk')    
+        print(site_id)
         if site_id:
             return SiteProfile.objects.filter(site_id=int(site_id))
         return SiteProfile.objects.none() 
     
-    @schema_for_create(serializer_class=serializer_class)
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)  
+    
+    @schema_for_update(serializer_class=serializer_class)
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs) 
+      
+    @schema_for_update(serializer_class=serializer_class)
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)   
     
     
-class ProfileTemplateViewSet(NonListModelViewSet):
+class ProfileTemplateViewSet(RetriveUpdateModelViewSet):
     queryset = SelectedTemplate.objects.all()
     serializer_class = SelectTemplateSerializer
-    permission_classes = [permissions.IsAuthenticated]  
+   
     
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        profile_id = self.kwargs.get('pk') 
-        if profile_id:  
-            context['profile'] = int(profile_id)
-        return context
+    def get_queryset(self):   
+        profile_id = self.kwargs.get('profile_pk')    
+        if profile_id:
+            return SelectedTemplate.objects.filter(profile_id=int(profile_id))
+        return SelectedTemplate.objects.none()  
     
-    @schema_for_create(serializer_class=serializer_class)
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
     
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)  
+    
+    @schema_for_update(serializer_class=serializer_class)
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs) 
+      
+    @schema_for_update(serializer_class=serializer_class)
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs) 
+    
+    
+class PersonalizedEmailSettingViewSet(RetriveUpdateModelViewSet):
+    serializer_class = PersonalizedEmailSettingSerializer
 
-class AllExperienceViewSet(viewsets.ModelViewSet):
-    queryset = Experience.objects.all()
-    serializer_class = AllExperienceSerializer
-    permission_classes = [permissions.IsAuthenticated & DjangoObjectPermissions]   
-    # filter_backends = [filters.OrderingFilter]
-    # ordering_fields = ['responsibility_or_designation', 'experience_type']
-        
+    
+    def get_queryset(self):   
+        site_id = self.kwargs.get('pk') 
+        if site_id:
+            return PersonalizedEmailSetting.objects.filter(site_id=int(site_id))
+        return PersonalizedEmailSetting.objects.none() 
+    
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)   
+    
+    @schema_for_update(serializer_class=serializer_class)
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs) 
+      
+    @schema_for_update(serializer_class=serializer_class)
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs) 
+    
+class ExtraProfileImagesViewSet(viewsets.ModelViewSet):
+    serializer_class = ExtraProfileImagesSerializer
+    pagination_class = Pagination30
+    parser_classes = [MultiPartParser, JSONParser] # Must update commit of drf-yasg consumes utils.py >> get_consumes
+    
+    def get_queryset(self):   
+        profile_id = self.kwargs.get('profile_pk')       
+        if profile_id:
+            profile = SiteProfile.objects.get(pk=int(profile_id))
+            get_extra_images(profile)
+            return ExtraProfileImages.objects.filter(profile_id=int(profile_id))  
+        return ExtraProfileImages.objects.none()    
+    
     @schema_for_create(serializer_class=serializer_class)
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
+    
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    @schema_for_update(serializer_class=serializer_class)
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)   
+    
+    @schema_for_update(serializer_class=serializer_class)
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs) 
+    
+    @schema_for_destroy(serializer_class=serializer_class)
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+    
+    def perform_create(self, serializer):
+        serializer.validated_data ['profile_id'] = int(self.kwargs.get('profile_pk'))
+        serializer.save()
     
     
 class SiteExperienceViewSet(viewsets.ModelViewSet):
     serializer_class = SiteExperienceSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    parser_classes = [FileUploadParser]
-
     
-    def get_queryset(self):   
+    def get_queryset(self):        
         site_id = self.kwargs.get('site_pk') 
         if site_id:
             return Experience.objects.filter(site_id=int(site_id))
@@ -182,14 +328,35 @@ class SiteExperienceViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
     
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    @schema_for_update(serializer_class=serializer_class)
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)   
+    
+    @schema_for_update(serializer_class=serializer_class)
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs) 
+    
+    @schema_for_destroy(serializer_class=serializer_class)
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+    
+    def perform_create(self, serializer):
+        serializer.validated_data ['site_id'] = int(self.kwargs.get('site_pk'))
+        serializer.save()
+    
     
 class ExperienceWhatDidViewSet(viewsets.ModelViewSet):
     serializer_class = WhatDidSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    # parser_classes = [FileUploadParser]
-
-    
-    def get_queryset(self):   
+        
+    def get_queryset(self):        
         experience_id = self.kwargs.get('experience_pk') 
         if experience_id:
             return WhatDidThere.objects.filter(experience_id=int(experience_id))
@@ -199,10 +366,34 @@ class ExperienceWhatDidViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
     
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    @schema_for_update(serializer_class=serializer_class)
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)   
+    
+    @schema_for_update(serializer_class=serializer_class)
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs) 
+    
+    @schema_for_destroy(serializer_class=serializer_class)
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+    
+    def perform_create(self, serializer):
+        serializer.validated_data ['experience_id'] = int(self.kwargs.get('experience_pk'))
+        serializer.save()
+    
 class ExperienceSkillsAndToolsViewSet(viewsets.ModelViewSet):
     serializer_class = SkillsAndToolsSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    parser_classes = [FileUploadParser]
+    parser_classes = [MultiPartParser, JSONParser] # Must update commit of drf-yasg consumes utils.py >> get_consumes
+
     
     def get_queryset(self):   
         experience_id = self.kwargs.get('experience_pk') 
@@ -214,11 +405,34 @@ class ExperienceSkillsAndToolsViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
     
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    @schema_for_update(serializer_class=serializer_class)
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)   
+    
+    @schema_for_update(serializer_class=serializer_class)
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs) 
+    
+    @schema_for_destroy(serializer_class=serializer_class)
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+    
+    def perform_create(self, serializer):
+        serializer.validated_data ['experience_id'] = int(self.kwargs.get('experience_pk'))
+        serializer.save()
+    
 
 class KeyQualificationViewSet(viewsets.ModelViewSet):
     serializer_class = KeyQualificationSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    # parser_classes = [FileUploadParser]
+  
     
     def get_queryset(self):   
         site_id = self.kwargs.get('site_pk') 
@@ -230,46 +444,34 @@ class KeyQualificationViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
     
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
     
-class ExtraProfileImagesViewSet(viewsets.ModelViewSet):
-    serializer_class = ExtraProfileImagesSerializer
-    pagination_class = Pagination30
-    permission_classes = [permissions.IsAuthenticated]
-    parser_classes = [MultiPartParser, FileUploadParser]
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
     
-    def get_queryset(self):   
-        profile_id = self.kwargs.get('profile_pk') 
-        if profile_id:
-            profile = SiteProfile.objects.get(pk=int(profile_id))
-            get_extra_images(profile)
-            return ExtraProfileImages.objects.filter(profile=profile)  
-        return ExtraProfileImages.objects.none()    
+    @schema_for_update(serializer_class=serializer_class)
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)   
     
-    @schema_for_create(serializer_class=serializer_class)
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
+    @schema_for_update(serializer_class=serializer_class)
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs) 
     
-    
- 
-class PersonalizedEmailSettingViewSet(viewsets.ModelViewSet):
-    serializer_class = PersonalizedEmailSettingSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    # parser_classes = [FileUploadParser]
-    
-    def get_queryset(self):   
-        site_id = self.kwargs.get('site_pk') 
-        if site_id:
-            return PersonalizedEmailSetting.objects.filter(site_id=int(site_id))
-        return PersonalizedEmailSetting.objects.none()    
-    
-    @schema_for_create(serializer_class=serializer_class)
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
+    @schema_for_destroy(serializer_class=serializer_class)
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        serializer.validated_data ['site_id'] = int(self.kwargs.get('site_pk'))
+        serializer.save() 
+
     
 class CmsTagViewSet(viewsets.ModelViewSet):
     serializer_class = CmsTagSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    # parser_classes = [FileUploadParser]
+
     
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -288,10 +490,28 @@ class CmsTagViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
     
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    @schema_for_update(serializer_class=serializer_class)
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)   
+    
+    @schema_for_update(serializer_class=serializer_class)
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs) 
+    
+    @schema_for_destroy(serializer_class=serializer_class)
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+    
 class ContentTypeCommentViewSet(viewsets.ModelViewSet):
     serializer_class = ContentTypeCommentSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    # parser_classes = [FileUploadParser]
     
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -314,25 +534,50 @@ class ContentTypeCommentViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
     
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    @schema_for_update(serializer_class=serializer_class)
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)   
+    
+    @schema_for_update(serializer_class=serializer_class)
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs) 
+    
+    @schema_for_destroy(serializer_class=serializer_class)
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+    
     
     @schema_for_create(serializer_class=serializer_class)
     def update(self, request, *args, **kwargs):
-        return super().update(request, *args, **kwargs)
-    
-    
+        return super().update(request, *args, **kwargs)    
     
 
 class ContentTypeViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = ContentType.objects.all()
     serializer_class = ContentTypeSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    # parser_classes = [FileUploadParser]
+    
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
     
 
 class CmsCategoryViewSet(viewsets.ModelViewSet):
     serializer_class = CmsCategorySerializer
-    permission_classes = [permissions.IsAuthenticated]
-    # parser_classes = [FileUploadParser]
+
+    
     
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -351,18 +596,34 @@ class CmsCategoryViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
     
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
     
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    @schema_for_update(serializer_class=serializer_class)
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)   
+    
+    @schema_for_update(serializer_class=serializer_class)
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs) 
+    
+    @schema_for_destroy(serializer_class=serializer_class)
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+    
+    
+
 class CmsBlogViewSet(viewsets.ModelViewSet):
     serializer_class = CmsBlogSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    parser_classes = [MultiPartParser, FileUploadParser]
-    
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        site_id = self.kwargs.get('site_pk')    
-        if site_id:
-            context['site_id'] = int(site_id)
-        return context
+    parser_classes = [MultiPartParser, JSONParser] # Must update commit of drf-yasg consumes utils.py >> get_consumes
+
+    # filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    # filterset_class = BlogFilter
     
     def get_queryset(self):   
         site_id = self.kwargs.get('site_pk') 
@@ -371,13 +632,239 @@ class CmsBlogViewSet(viewsets.ModelViewSet):
         return Blog.objects.none()    
     
     @schema_for_create(serializer_class=serializer_class)
-    def create(self, request, *args, **kwargs):       
-        return super().create(request, *args, **kwargs)    
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+    
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    @schema_for_update(serializer_class=serializer_class)
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)   
+    
+    @schema_for_update(serializer_class=serializer_class)
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs) 
+    
+    @schema_for_destroy(serializer_class=serializer_class)
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs) 
     
     def perform_create(self, serializer):
         site_id = self.kwargs.get('site_pk') 
         serializer.validated_data['site_id'] = int(site_id)      
         serializer.save()
+        
+        
+class ProjectViewSet(viewsets.ModelViewSet):
+    serializer_class = ProjectSerializer
+    parser_classes = [MultiPartParser, JSONParser] # Must update commit of drf-yasg consumes utils.py >> get_consumes
+
+    
+    def get_queryset(self):   
+        site_id = self.kwargs.get('site_pk') 
+        if site_id:
+            return Project.objects.filter(site_id=int(site_id))
+        return Project.objects.none()    
+    
+    @schema_for_create(serializer_class=serializer_class)
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+    
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    @schema_for_update(serializer_class=serializer_class)
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)   
+    
+    @schema_for_update(serializer_class=serializer_class)
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs) 
+    
+    @schema_for_destroy(serializer_class=serializer_class)
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs) 
+    
+    def perform_create(self, serializer):
+        site_id = self.kwargs.get('site_pk') 
+        serializer.validated_data['site_id'] = int(site_id)      
+        serializer.save()
+        
+        
+class ProjectRequirementViewSet(viewsets.ModelViewSet):
+    serializer_class = ProjectRequirementSerializer
+    
+    def get_queryset(self):   
+        project_id = self.kwargs.get('project_pk')        
+        if project_id :
+            return ProjectRequirement.objects.filter(project_id=int(project_id))
+        return ProjectRequirement.objects.none()    
+    
+    @schema_for_create(serializer_class=serializer_class)
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+    
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    @schema_for_update(serializer_class=serializer_class)
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)   
+    
+    @schema_for_update(serializer_class=serializer_class)
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs) 
+    
+    @schema_for_destroy(serializer_class=serializer_class)
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs) 
+    
+    def perform_create(self, serializer):
+        project_id = self.kwargs.get('project_pk') 
+        serializer.validated_data['project_id'] = int(project_id)      
+        serializer.save()  
+    
+class ProjectScoopeViewSet(viewsets.ModelViewSet):
+    serializer_class = ProjectScoopeSerializer
+    
+    
+    def get_queryset(self):   
+        project_id = self.kwargs.get('project_pk')         
+        if project_id:
+            return ProjectScoope.objects.filter(
+                project_id=int(project_id)
+                )
+        return ProjectScoope.objects.none()    
+    
+    @schema_for_create(serializer_class=serializer_class)
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+    
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    @schema_for_update(serializer_class=serializer_class)
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)   
+    
+    @schema_for_update(serializer_class=serializer_class)
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs) 
+    
+    @schema_for_destroy(serializer_class=serializer_class)
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs) 
+    
+    def perform_create(self, serializer):
+        project_id = self.kwargs.get('project_pk') 
+        serializer.validated_data['project_id'] = int(project_id)      
+        serializer.save()  
+    
+    
+class ScoopVisualizationViewSet(viewsets.ModelViewSet):
+    serializer_class = ScoopVisualizationSerializer
+    parser_classes = [MultiPartParser, JSONParser] # Must update commit of drf-yasg consumes utils.py >> get_consumes
+
+    
+    def get_queryset(self):   
+        scoope_id = self.kwargs.get('scoope_pk')    
+        if scoope_id:
+            return ScoopVisualization.objects.filter(
+                project_scoope_id = int(scoope_id))
+        return ScoopVisualization.objects.none()    
+    
+    @schema_for_create(serializer_class=serializer_class)
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+    
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    @schema_for_update(serializer_class=serializer_class)
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)   
+    
+    @schema_for_update(serializer_class=serializer_class)
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs) 
+    
+    @schema_for_destroy(serializer_class=serializer_class)
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+    
+    def perform_create(self, serializer):
+        scoope_id = self.kwargs.get('scoope_pk') 
+        serializer.validated_data['project_scoope_id'] = int(scoope_id)      
+        serializer.save()     
+        
+        
+class ServiceViewSet(viewsets.ModelViewSet):
+    serializer_class = ServiceSerializer
+    parser_classes = [MultiPartParser, JSONParser] # Must update commit of drf-yasg consumes utils.py >> get_consumes
+
+    
+    def get_queryset(self):   
+        site_id = self.kwargs.get('site_pk') 
+        if site_id:
+            return Service.objects.filter(site_id=int(site_id))
+        return Service.objects.none()    
+    
+    @schema_for_create(serializer_class=serializer_class)
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+    
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    @schema_for_update(serializer_class=serializer_class)
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)   
+    
+    @schema_for_update(serializer_class=serializer_class)
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs) 
+    
+    @schema_for_destroy(serializer_class=serializer_class)
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)  
+    
+    def perform_create(self, serializer):
+        site_id = self.kwargs.get('site_pk') 
+        serializer.validated_data['site_id'] = int(site_id)      
+        serializer.save()
+    
+
         
         
   
