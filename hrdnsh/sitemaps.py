@@ -41,6 +41,23 @@ class BlogSitemap(sitemaps.Sitemap):
     def location(self, obj):
         return obj.get_absolute_url()
     
+class PageSitemap(sitemaps.Sitemap):
+    def __init__(self, request):
+        self.request = request
+        super().__init__()
+        
+    changefreq = "weekly"
+    priority = 0.8    
+
+    def items(self):
+        return Page.status_objects.published_on_site(self.request).exclude(updated_at__lte=timezone.now() - timezone.timedelta(weeks=1))
+    
+    def lastmod(self, obj):
+        return obj.updated_at
+        
+    def location(self, obj):
+        return obj.get_absolute_url()
+    
 class CategoryBlogsSitemap(sitemaps.Sitemap):
     def __init__(self, request):
         self.request = request

@@ -5,7 +5,7 @@ from rest_framework import generics, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from account.models import User
-from cms.models import Blog, Category, Comment, Tag
+from cms.models import Blog, Category, Comment, Page, Tag
 
 from django.shortcuts import get_object_or_404
 from django.contrib.sites.models import Site
@@ -55,6 +55,7 @@ from hdapi.schema import schema_for_create, schema_for_destroy, schema_for_retri
 from hdapi.serializers import ( 
     CmsBlogSerializer,
     CmsCategorySerializer,
+    CmsPageSerializer,
     CmsTagSerializer,
     ContentTypeCommentSerializer,
     ContentTypeSerializer,
@@ -630,6 +631,46 @@ class CmsBlogViewSet(viewsets.ModelViewSet):
         if site_id:
             return Blog.objects.filter(site_id=int(site_id))
         return Blog.objects.none()    
+    
+    @schema_for_create(serializer_class=serializer_class)
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+    
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+    @schema_for_retrieve(serializer_class=serializer_class)
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    @schema_for_update(serializer_class=serializer_class)
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)   
+    
+    @schema_for_update(serializer_class=serializer_class)
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs) 
+    
+    @schema_for_destroy(serializer_class=serializer_class)
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs) 
+    
+    def perform_create(self, serializer):
+        site_id = self.kwargs.get('site_pk') 
+        serializer.validated_data['site_id'] = int(site_id)      
+        serializer.save()
+        
+        
+class CmsPageViewSet(viewsets.ModelViewSet):
+    serializer_class = CmsPageSerializer
+    parser_classes = [MultiPartParser, JSONParser]
+    
+    def get_queryset(self):   
+        site_id = self.kwargs.get('site_pk') 
+        if site_id:
+            return Page.objects.filter(site_id=int(site_id))
+        return Page.objects.none()    
     
     @schema_for_create(serializer_class=serializer_class)
     def create(self, request, *args, **kwargs):

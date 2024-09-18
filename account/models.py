@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils.translation import gettext_lazy as _
 from django.db import models
+from phonenumber_field.modelfields import PhoneNumberField
 
 class PercomUserManager(BaseUserManager):
     """
@@ -10,8 +11,7 @@ class PercomUserManager(BaseUserManager):
     def create_user(self, email, password, **extra_fields):
         """
         Create and save a User with the given email and password.
-        """
-        print('sssssssssssss')
+        """      
         if not email:
             raise ValueError(_('The Email must be set'))
         email = self.normalize_email(email)
@@ -40,7 +40,37 @@ class User(AbstractUser):
     """
     username = None
     email = models.EmailField(_('email address'), unique=True)
+    known_name = models.CharField(max_length=60, null=True, blank=True)
     is_api_user = models.BooleanField(default=False)
+    RELEGION = (
+        ('christianity','Christianity'),
+        ('islam', 'Islam'),
+        ('hinduism', 'Hinduism'),
+        ('buddhism', 'Buddhism'),
+        ('judaism', 'Judaism'),
+        ('sikhism', 'Sikhism'),
+        ('confucianism', 'Confucianism'),
+        ('taoism', 'Taoism'),
+        ('shinto', 'Shinto'),       
+        
+    )
+    religion = models.CharField(max_length=60, choices=RELEGION, default='islam')
+    phone_number = PhoneNumberField(blank=True)
+    
+    BLOOD_GROUP = (
+        ('ab+','AB+'),
+        ('ab-', 'AB-'),
+        ('a+', 'A+'),
+        ('a-', 'A-'),
+        ('b+', 'B+'),
+        ('b-', 'B-'),
+        ('o+', 'O+'),
+        ('o-', 'O-'),       
+    )
+    blood_group = models.CharField(max_length=60, choices=BLOOD_GROUP, default='ab+')
+    
+    birth_date = models.DateTimeField(null=True, blank=True)
+    
     
     @property
     def associated_site_id(self):

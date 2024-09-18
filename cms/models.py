@@ -204,6 +204,44 @@ class Blog(
     
     def __str__(self):
         return self.title
+    
+
+class Page(   
+    TitleBodyMixin,
+    SlugMixin,  
+    ImageMixin,  
+    DateTimeMixin,  
+    StatusMixin,
+    SaveAndImageOptimizationMixin, #if need to edit save method look here
+    models.Model
+    
+    ):   
+    site = models.ForeignKey(Site, on_delete=models.CASCADE, related_name='%(class)s_site') 
+    summary = models.TextField(max_length=400)
+    footnote = models.TextField(max_length=400, null=True, blank=True)    
+    view = GenericRelation(View)
+    
+    image_fields_to_optimize = ['main_image']
+    
+    objects = models.Manager()  
+    on_site = CurrentSiteManager('site')
+    status_objects = PublishManager()
+    
+    class Meta:
+        ordering = ['-created_at']   
+
+        permissions = [
+            ("can_access_all", "Can Access all objects"),
+        ]
+    
+    
+    def get_absolute_url(self):        
+        return reverse('page_detail', args=[self.slug]) 
+    
+    def increment_view_count(self):   
+        view, create = self.view.get_or_create(content_type = self, object_id=self.id)
+        view.count += 1
+        view.save()
 
 # Category model
 class Category(

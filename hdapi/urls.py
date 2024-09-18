@@ -3,6 +3,7 @@ from django.urls import include, path
 from hdapi.views import (  
         CmsBlogViewSet,
         CmsCategoryViewSet,
+        CmsPageViewSet,
         CmsTagViewSet,
         ContentTypeCommentViewSet,
         ContentTypeViewSet,
@@ -68,6 +69,8 @@ router.register(r'common_sites/(?P<site_pk>\d+)/key_qualification', KeyQualifica
 router.register(r'cms_site/(?P<site_pk>\d+)/tags', CmsTagViewSet, basename='csm-site-tags')
 router.register(r'cms_site/(?P<site_pk>\d+)/category', CmsCategoryViewSet, basename='csm-site-categories')
 router.register(r'cms_site/(?P<site_pk>\d+)/blogs', CmsBlogViewSet, basename='csm-site-blogs')
+router.register(r'cms_site/(?P<site_pk>\d+)/pages', CmsPageViewSet, basename='csm-site-pages')
+
 
 router.register(r'project_site/(?P<site_pk>\d+)/projects', ProjectViewSet, basename='project-site-projects')
 router.register(r'project_site/(?P<site_pk>\d+)/projects/(?P<project_pk>\d+)/project_requirements', ProjectRequirementViewSet, basename='project-requirements')

@@ -59,6 +59,6 @@ def mega_menu_items(request):
     }
     menu_items.append(contact)
     
-    cache.get(f"menu_items", menu_items)
+    cache.set(f"menu_items", menu_items)
     
     return menu_items

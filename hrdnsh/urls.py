@@ -3,6 +3,7 @@ from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
 from django.contrib.sitemaps.views import sitemap
+from cms.views import PageDetailView
 from common.views import webmanifest
 from .sitemaps import *
 
@@ -10,6 +11,7 @@ def build_sitemap(request):
     sitemap_list = {
         'static': StaticSitemap,
         'blogs' : BlogSitemap(request),
+        'pages' : PageSitemap(request),
         'categoryblog' : CategoryBlogsSitemap(request),
         'tagblog' : TagBlogsSitemap(request),
         'project' : ProjectSitemap(request),        
@@ -44,6 +46,9 @@ urlpatterns += [
     path('manifest.json', webmanifest, name='manifest'),
 ]
 
+urlpatterns += [
+    path('p/<slug>/', PageDetailView.as_view(), name='page_detail'),
+]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

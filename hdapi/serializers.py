@@ -4,7 +4,7 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework import serializers, status
 from django.contrib.sites.models import Site
 from account.models import User
-from cms.models import Blog, Category, Comment, Tag, View
+from cms.models import Blog, Category, Comment, Page, Tag, View
 from django.contrib.contenttypes.models import ContentType
 from common.models import (
     Experience,
@@ -70,6 +70,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = '__all__'    
+        
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -195,6 +196,18 @@ class CmsCategorySerializer(serializers.ModelSerializer):
     def create(self, validated_data):      
         site_id = self.context['site_id']        
         return Category.objects.create(site_id=site_id, **validated_data) 
+    
+class CmsPageSerializer(serializers.ModelSerializer):
+    view = ViewSerializer(many=True, read_only=True)
+    absolute_url = serializers.SerializerMethodField()
+    class Meta:
+        model = Page    
+        exclude = ()
+        read_only_fields = ('site', 'slug', )
+        
+    
+    def get_absolute_url(self, page: Page):
+        return f'https://{page.site.domain}{page.get_absolute_url()}' 
 
 class ContentTypeSerializer(serializers.ModelSerializer):        
     class Meta:

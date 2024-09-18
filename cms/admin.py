@@ -28,6 +28,19 @@ class BlogAdmin(SummernoteModelAdmin):
 
 admin.site.register(Blog, BlogAdmin)
 
+class PageAdmin(SummernoteModelAdmin):
+    summernote_fields = ('body', )
+    prepopulated_fields = {'slug': ('title',)}
+    list_display = ('title', 'status',)
+    
+    class Media:
+        css = {
+            'all': ('assets/css/custom_admin.css',)
+        }
+
+admin.site.register(Page, PageAdmin)
+
+
 
 admin.site.register(Category)
 admin.site.register(Tag)

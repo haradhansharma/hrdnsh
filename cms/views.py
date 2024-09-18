@@ -236,6 +236,52 @@ def edit_delete_comment(request, id):
     if request.method == 'DELETE': 
         comment.delete()
         return HttpResponse('<small class="text-danger fs-6">deleted!</small>')
+    
+    
+
+class PageDetailView(DetailView):
+    model = Page
+    template_name = 'cms/page_details.html'
+    context_object_name = 'post'
+    
+    def render_to_response(self, context, **response_kwargs):
+        response = super().render_to_response(context, **response_kwargs)
+        response['X-Robots-Tag'] = 'INDEX, FOLLOW'
+        return response
+    
+    def get_queryset(self):        
+        queryset = self.model.status_objects.published_on_site(self.request)        
+        return queryset    
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+ 
+        
+        obj = self.get_object()       
+        
+
+        # Get or create a View object to increment view count
+        obj.increment_view_count()
+        
+        view = obj.view.get()  
+ 
+   
+        
+        
+        context['view_count'] = view.count     
+        
+        profile = site_profile(self.request)   
+        profile['meta_title'] = obj.title
+        sumamry = strip_tags(obj.summary)
+        profile['meta_description'] = sumamry[:140] + ' ...' if len(sumamry) > 140 else sumamry
+        obj_picture = obj.main_image
+        profile['meta_image'] = self.request.build_absolute_uri(obj_picture.url)        
+        context['profile'] = profile  
+      
+        return context
+
+
+  
         
     
     
