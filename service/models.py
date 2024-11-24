@@ -27,6 +27,7 @@ class Service(
     site = models.ForeignKey(Site, on_delete=models.CASCADE, related_name='%(class)s_site')
     summary = models.TextField(max_length=400)
     skills = models.ManyToManyField(SkillsAndTools, related_name='service_skills')  
+    buy_link = models.URLField(null=True, blank=True, help_text='buy link from any payment gateway')
     
     view = GenericRelation(View)
     
