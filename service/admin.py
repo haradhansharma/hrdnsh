@@ -21,6 +21,7 @@ class ServiceAdmin(SummernoteModelAdmin):
     fields = [
         "title", 
         "slug", 
+        "buy_link",
         "main_image",          
         "summary", 
         "body",
