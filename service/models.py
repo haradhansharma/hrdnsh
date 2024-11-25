@@ -27,7 +27,7 @@ class Service(
     site = models.ForeignKey(Site, on_delete=models.CASCADE, related_name='%(class)s_site')
     summary = models.TextField(max_length=400)
     skills = models.ManyToManyField(SkillsAndTools, related_name='service_skills')  
-    buy_link = models.URLField(null=True, blank=True, help_text='buy link from any payment gateway')
+
     
     view = GenericRelation(View)
     
@@ -53,4 +53,9 @@ class Service(
         permissions = [
             ("can_access_all", "Can Access all objects"),
         ]
+        
+class PriceOptions(models.Model):
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='price_options')
+    link_text = models.CharField(max_length=20)
+    buy_link = models.URLField(help_text='Direct Payment URL from Strip')
     

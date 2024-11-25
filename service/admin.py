@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django_summernote.admin import SummernoteModelAdmin
-from service.models import Service
+from service.models import PriceOptions, Service
 from django import forms
 from django_select2 import forms as s2forms
 
@@ -12,7 +12,10 @@ class ServiceAdminForm(forms.ModelForm):
             'skills': s2forms.Select2TagWidget(attrs={'data-placeholder': 'Select or create Skills'}),          
         }
 
-
+class ServicePriceOptionsInline(admin.TabularInline):
+    model = PriceOptions
+    extra = 1
+    
 class ServiceAdmin(SummernoteModelAdmin):
     summernote_fields = ('body', 'summary', )
     prepopulated_fields = {'slug': ('title',)}
@@ -38,7 +41,7 @@ class ServiceAdmin(SummernoteModelAdmin):
     
 
 
-    
+    inlines = [ServicePriceOptionsInline]
     class Media:
         css = {
             'all': ('assets/css/custom_admin.css',)
