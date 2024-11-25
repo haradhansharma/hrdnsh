@@ -242,7 +242,7 @@ class Page(
         view, create = self.view.get_or_create(content_type = self, object_id=self.id)
         view.count += 1
         view.save()
-
+ 
 # Category model
 class Category(
     TitleBodyMixin,

@@ -33,12 +33,12 @@ class BlogSitemap(sitemaps.Sitemap):
     priority = 0.8    
 
     def items(self):
-        return Blog.status_objects.published_on_site(self.request).exclude(updated_at__lte=timezone.now() - timezone.timedelta(weeks=1))
+        return Blog.status_objects.published_on_site(self.request)[:100]
     
     def lastmod(self, obj):
         return obj.updated_at
         
-    def location(self, obj):
+    def location(self, obj):       
         return obj.get_absolute_url()
     
 class PageSitemap(sitemaps.Sitemap):
@@ -50,7 +50,7 @@ class PageSitemap(sitemaps.Sitemap):
     priority = 0.8    
 
     def items(self):
-        return Page.status_objects.published_on_site(self.request).exclude(updated_at__lte=timezone.now() - timezone.timedelta(weeks=1))
+        return Page.status_objects.published_on_site(self.request)[:100]
     
     def lastmod(self, obj):
         return obj.updated_at
@@ -66,11 +66,10 @@ class CategoryBlogsSitemap(sitemaps.Sitemap):
     priority = 0.7    
 
     def items(self):
-        categories = Category.on_site.prefetch_related('blog_category')
+        categories = Category.on_site.prefetch_related('blog_category').all()[:100]
         list_cat = []
-        for cate in categories:
-            if cate.blog_category.filter(site=self.request.site, status='public').count() > 10:
-                list_cat.append(cate)
+        for cate in categories:     
+            list_cat.append(cate)
         return list_cat
     
     def lastmod(self, obj):
@@ -87,11 +86,10 @@ class TagBlogsSitemap(sitemaps.Sitemap):
     priority = 0.7    
 
     def items(self):
-        tags = Tag.on_site.prefetch_related('blog_related')
+        tags = Tag.on_site.prefetch_related('blog_related')[:100]
         list_tag = []
-        for tag in tags:
-            if tag.blog_related.filter(site=self.request.site).count() > 1:
-                list_tag.append(tag)
+        for tag in tags:    
+            list_tag.append(tag)
         return list_tag
     
     def lastmod(self, obj):
@@ -109,7 +107,7 @@ class ProjectSitemap(sitemaps.Sitemap):
     priority = 0.8    
 
     def items(self):
-        return Project.status_objects.published_on_site(self.request).exclude(updated_at__lte=timezone.now() - timezone.timedelta(weeks=1))
+        return Project.status_objects.published_on_site(self.request)[:100]
     
     def lastmod(self, obj):
         return obj.updated_at
@@ -125,11 +123,10 @@ class CategoryProjectSitemap(sitemaps.Sitemap):
     priority = 0.7    
 
     def items(self):
-        categories = Category.on_site.prefetch_related('project_categories')
+        categories = Category.on_site.prefetch_related('project_categories').all()[:100]
         list_cat = []
-        for cate in categories:
-            if cate.project_categories.filter(site=self.request.site, status='public').count() > 10:
-                list_cat.append(cate)
+        for cate in categories:       
+            list_cat.append(cate)
         return list_cat
     
     def lastmod(self, obj):
@@ -148,7 +145,7 @@ class ServiceSitemap(sitemaps.Sitemap):
     priority = 0.8    
 
     def items(self):
-        return Service.status_objects.published_on_site(self.request).exclude(updated_at__lte=timezone.now() - timezone.timedelta(weeks=1))
+        return Service.status_objects.published_on_site(self.request)[:100]
     
     def lastmod(self, obj):
         return obj.updated_at
