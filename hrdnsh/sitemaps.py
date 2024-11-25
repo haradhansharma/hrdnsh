@@ -33,7 +33,7 @@ class BlogSitemap(sitemaps.Sitemap):
     priority = 0.8    
 
     def items(self):
-        return Blog.status_objects.published_on_site(self.request)[:100]
+        return Blog.status_objects.published_on_site(self.request)[-100:]
     
     def lastmod(self, obj):
         return obj.updated_at
@@ -50,7 +50,7 @@ class PageSitemap(sitemaps.Sitemap):
     priority = 0.8    
 
     def items(self):
-        return Page.status_objects.published_on_site(self.request)[:100]
+        return Page.status_objects.published_on_site(self.request)[-100:]
     
     def lastmod(self, obj):
         return obj.updated_at
@@ -66,7 +66,7 @@ class CategoryBlogsSitemap(sitemaps.Sitemap):
     priority = 0.7    
 
     def items(self):
-        categories = Category.on_site.prefetch_related('blog_category').all()[:100]
+        categories = Category.on_site.prefetch_related('blog_category').all()[-100:]
         list_cat = []
         for cate in categories:     
             list_cat.append(cate)
@@ -86,7 +86,7 @@ class TagBlogsSitemap(sitemaps.Sitemap):
     priority = 0.7    
 
     def items(self):
-        tags = Tag.on_site.prefetch_related('blog_related')[:100]
+        tags = Tag.on_site.prefetch_related('blog_related')[-100:]
         list_tag = []
         for tag in tags:    
             list_tag.append(tag)
@@ -107,7 +107,7 @@ class ProjectSitemap(sitemaps.Sitemap):
     priority = 0.8    
 
     def items(self):
-        return Project.status_objects.published_on_site(self.request)[:100]
+        return Project.status_objects.published_on_site(self.request)[-100:]
     
     def lastmod(self, obj):
         return obj.updated_at
@@ -123,7 +123,7 @@ class CategoryProjectSitemap(sitemaps.Sitemap):
     priority = 0.7    
 
     def items(self):
-        categories = Category.on_site.prefetch_related('project_categories').all()[:100]
+        categories = Category.on_site.prefetch_related('project_categories').all()[-100:]
         list_cat = []
         for cate in categories:       
             list_cat.append(cate)
@@ -145,7 +145,7 @@ class ServiceSitemap(sitemaps.Sitemap):
     priority = 0.8    
 
     def items(self):
-        return Service.status_objects.published_on_site(self.request)[:100]
+        return Service.status_objects.published_on_site(self.request)[-100:]
     
     def lastmod(self, obj):
         return obj.updated_at
