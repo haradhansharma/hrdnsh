@@ -23,8 +23,7 @@ class ServiceAdmin(SummernoteModelAdmin):
     
     fields = [
         "title", 
-        "slug", 
-        "buy_link",
+        "slug",         
         "main_image",          
         "summary", 
         "body",
@@ -42,6 +41,7 @@ class ServiceAdmin(SummernoteModelAdmin):
 
 
     inlines = [ServicePriceOptionsInline]
+    
     class Media:
         css = {
             'all': ('assets/css/custom_admin.css',)
