@@ -15,6 +15,17 @@ class ExtraImagesInline(admin.TabularInline):
     extra = 1
     
 class SiteProfileAdmin(admin.ModelAdmin):
+    
+    def save_model(self, request, obj, form, change):
+   
+        super().save_model(request, obj, form, change)        
+  
+        cache_key = f"site_profile{request.site.id}"  
+        cache.delete(cache_key)
+   
+        self.message_user(request, f"Cache key '{cache_key}' deleted successfully. It will rebuild autometically based on updated information", level="info")
+
+    
     inlines = [SelectedtemplateInline, ExtraImagesInline]
 admin.site.register(SiteProfile, SiteProfileAdmin)
 
