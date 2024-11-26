@@ -26,7 +26,19 @@ log =  logging.getLogger('log')
 class BlogListView(ListView):
     model = Blog
     template_name = 'cms/blogs.html'
-    paginate_by = 2
+    paginate_by = 10
+    
+    def get_tag(self, id):
+        try:
+            return Tag.on_site.get(id=id) 
+        except:
+            return None
+    
+    def get_category(self, slug):
+        try:
+            return Category.objects.get(slug = slug)
+        except:
+            return None
     
     
     def get_queryset(self):
@@ -48,7 +60,7 @@ class BlogListView(ListView):
             
         # Check if the 'tagname' parameter exists in the URL kwargs
         if 'tag_id' in self.kwargs:    
-            tag = Tag.on_site.get(id=self.kwargs['tag_id'])            
+            tag = self.get_tag(self.kwargs['tag_id'])        
             # Filter the queryset based on the category slug
             queryset = queryset.filter(tags__name__icontains=tag.name)
             tag.increment_view_count()
@@ -58,7 +70,9 @@ class BlogListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)       
         profile = site_profile(self.request)   
-        profile['meta_title'] = 'Tagged Sense and Publications' if 'tag_id' in self.kwargs else ('Categoraise Sense and Publication' if 'slug' in self.kwargs else profile['blog_page_title'])
+        tag = self.get_tag(self.kwargs.get('tag_id'))  
+        category = self.get_category(self.kwargs.get('slug'))         
+        profile['meta_title'] = f'{tag.name} Tagged Sense and Publications' if 'tag_id' in self.kwargs else (f'{category.title} Categoraised Sense and Publication' if 'slug' in self.kwargs else profile['blog_page_title'])
         sumamry = profile['blog_page_description']
         profile['meta_description'] = sumamry[:140] + ' ...' if len(sumamry) > 140 else sumamry
   
