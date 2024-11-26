@@ -35,7 +35,14 @@ class HomeView(FormView):
         obj.save()
         
         profile = self.get_profile()
-        personal_settings = self.request.site.personalized_setting if hasattr(self.request.site, 'personalized_setting') else False
+        personal_settings = self.request.site.personalized_setting if hasattr(self.request.site, 'personalized_setting') else None
+        
+        if personal_settings is None:
+            messages.warning(self.request, f'Message not sent, there is error! Please sent your email to {profile_email}')
+            return
+            
+        
+        
         form_email = form.cleaned_data['email']
         # Send email to user
         user_subject = f'{profile.get("profile_name")}-Thank you for contacting me!'

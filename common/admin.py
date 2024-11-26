@@ -46,7 +46,14 @@ class TemplateAdmin(SummernoteModelAdmin):
 admin.site.register(Template, TemplateAdmin)
 
 admin.site.unregister(Site)
-admin.site.register(Site)
+class PersonalizedEmailSettings(admin.StackedInline):
+    model = PersonalizedEmailSetting
+    extra = 1
+    
+    
+class SiteAdmin(admin.ModelAdmin):
+    inlines = [PersonalizedEmailSettings]
+admin.site.register(Site, SiteAdmin)
 
 
 class WhatDidThereInline(admin.TabularInline): 
@@ -71,9 +78,3 @@ admin.site.register(Experience, ExperienceAdmin)
 
 
 
-class PersonalizedEmailSettingAdmin(admin.ModelAdmin):
-    
-    form = PersonalizedEmailSettingsForm
-    
-
-admin.site.register(PersonalizedEmailSetting, PersonalizedEmailSettingAdmin)

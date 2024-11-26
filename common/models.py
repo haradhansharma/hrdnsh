@@ -369,12 +369,12 @@ class ExtraProfileImages(models.Model):
             ("can_access_all", "Can Access all objects"),
         ]
 
-    
+     
 
 
 class PersonalizedEmailSetting(models.Model):
     site = models.OneToOneField(Site, primary_key=True, on_delete=models.CASCADE, related_name='personalized_setting')
-    email = models.EmailField('Sender Email', null=True, blank=True, help_text="If provided Acknowledgement of contact form will be sent from this email and Contact Notification will receive here.")
+    email = models.EmailField('Mail From', null=True, blank=True, help_text="If provided Acknowledgement of contact form will be sent from this email and Contact Notification will receive here.")
     host = models.CharField(max_length=250, null=True, blank=True, help_text='Email will sent using this host')
     port = models.IntegerField('SMTP port', null=True, blank=True, help_text="SMTP port from your email configuration settings to sent email")
     host_user = models.CharField(help_text="Email user", null=True, blank=True, max_length=150)
@@ -396,7 +396,7 @@ class PersonalizedEmailSetting(models.Model):
         Checks the validity of email credentials during saving.
         Raises ValidationError if connection or authentication fails.
         """
-
+        print(self.host_password)
         try:
             # Create a temporary EmailBackend instance for testing
             backend = EmailBackend(
