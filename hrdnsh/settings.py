@@ -307,7 +307,7 @@ USE_L10N = True
 USE_TZ = True
 
 
-SESSION_COOKIE_NAME = 'cy5er_cv_service'
+SESSION_COOKIE_NAME = 'ccy5er_cv_service'
 
 STATIC_URL = f'static/'
 

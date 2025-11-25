@@ -37,7 +37,7 @@ default_keys_for_extra_images = [
 def site_profile(request):
   
     data = cache.get(f"site_profile{request.site.id}")
-    
+  
     if data is not None:
         return data
     
